@@ -18,7 +18,7 @@ export default function ForgotPasswordPage() {
         setIsSubmitting(true);
 
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
-            redirectTo: "https://parlay-project.vercel.app/update-password"
+            redirectTo: "https://parlay-project.vercel.app/auth/callback?next=/update-password"
         });
         setIsSubmitting(false);
 
