@@ -2,10 +2,11 @@
 
 import { FormEvent, useState } from "react";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase-browser";
+import { useRouter } from "next/navigation";
+import { requestPasswordReset } from "@/app/actions/password-reset";
 
 export default function ForgotPasswordPage() {
-    const supabase = createClient();
+    const router = useRouter();
     const [email, setEmail] = useState("");
     const [message, setMessage] = useState("");
     const [error, setError] = useState("");
@@ -17,18 +18,20 @@ export default function ForgotPasswordPage() {
         setError("");
         setIsSubmitting(true);
 
-        const { error } = await supabase.auth.resetPasswordForEmail(email, {
-            redirectTo: `${window.location.origin}/reset-password`
-        });
+        try {
+            const result = await requestPasswordReset(email);
 
-        setIsSubmitting(false);
+            if (result === "not-found") {
+                router.push("/forgot-password/no-account");
+                return;
+            }
 
-        if (error) {
-            setError(error.message);
-            return;
+            setMessage("Password reset email sent. Check your inbox for the reset link.");
+        } catch {
+            setError("We couldn't send a reset link. Please try again.");
+        } finally {
+            setIsSubmitting(false);
         }
-
-        setMessage("Password reset email sent. Check your inbox for the reset link.");
     }
 
     return (
