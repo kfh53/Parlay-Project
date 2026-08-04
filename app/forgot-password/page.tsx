@@ -14,14 +14,14 @@ export default function ForgotPasswordPage() {
         setMessage("");
         setError("");
 
-        const { error } = await supabase.auth.resetPasswordForEmail(email, {
-            redirectTo: "http://localhost:3000/reset-password",
-        });
+        // const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        //     redirectTo: "http://localhost:3000/reset-password",
+        // });
 
-        if (error) {
-            setError(error.message);
-            return;
-        }
+        // if (error) {
+        //     setError(error.message);
+        //     return;
+        // }
 
         setMessage(
             "Password reset email sent. Check your inbox."
