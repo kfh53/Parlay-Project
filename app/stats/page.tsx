@@ -82,15 +82,9 @@ export default async function StatsPage() {
     return (
         <main className="space-y-8">
             <div className="space-y-2">
-                <p className="text-sm font-semibold uppercase tracking-widest text-blue-600">
-                    Performance
-                </p>
                 <h1 className="text-3xl font-bold tracking-tight text-slate-900">
-                    Parlay Stats
+                    Stats
                 </h1>
-                <p className="text-slate-600">
-                    Overall results use completed parlay outcomes; player records use each player&apos;s result. Pushes are excluded from all win-rate calculations.
-                </p>
             </div>
 
             <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -103,9 +97,6 @@ export default async function StatsPage() {
             <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
                 <div className="border-b border-slate-200 px-5 py-4">
                     <h2 className="text-lg font-bold text-slate-900">Player parlay records</h2>
-                    <p className="text-sm text-slate-600">
-                        Each player&apos;s record reflects their own result in every completed parlay they joined.
-                    </p>
                 </div>
 
                 {playerStats.length === 0 ? (
