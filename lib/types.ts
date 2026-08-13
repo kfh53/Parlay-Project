@@ -19,6 +19,7 @@ export interface Parlay {
     game_date: string;
     status: string;
     created_by: string;
+    total_odds?: number | null;
 
     picks: Pick[];
 }

@@ -27,7 +27,6 @@ export async function createGame(formData: FormData) {
 
     const gameDate =
         formData.get("gameDate")?.toString();
-    const totalOdds = optionalInteger(formData.get("totalOdds"), "Total odds");
     const season = optionalInteger(formData.get("season"), "Season");
     const week = optionalInteger(formData.get("week"), "Week");
     const stage = formData.get("stage")?.toString() || null;
@@ -69,7 +68,7 @@ export async function createGame(formData: FormData) {
                 game_date: gameDate,
                 status: "open",
                 result: null,
-                total_odds: totalOdds,
+                total_odds: null,
                 notes,
                 created_by: user.id,
                 season: season ?? footballMetadata.season,

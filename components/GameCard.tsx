@@ -5,6 +5,7 @@ import { Parlay, Profile } from "@/lib/types";
 import PickList from "./PickList";
 import AddPickForm from "./AddPickForm";
 import GameActions from "./GameActions";
+import TotalOddsForm from "./TotalOddsForm";
 
 
 interface GameCardProps {
@@ -114,6 +115,10 @@ export default function GameCard({
                     Picks are locked
                 </div>
 
+            )}
+
+            {parlay.status === "locked" && parlay.created_by === currentUserId && (
+                <TotalOddsForm id={parlay.id} totalOdds={parlay.total_odds} />
             )}
 
 

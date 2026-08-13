@@ -52,21 +52,9 @@ export default function CreateGameForm() {
                 />
             </div>
 
-            <div>
-                <label htmlFor="total-odds" className="block font-semibold">
-                    Total Odds
-                </label>
-                <input
-                    id="total-odds"
-                    type="number"
-                    name="totalOdds"
-                    placeholder="Example: +250"
-                    className="border rounded p-2 w-full"
-                />
-                <p className="mt-1 text-sm text-slate-500">
-                    Optional. Season, week, and stage are calculated from the game date.
-                </p>
-            </div>
+            <p className="text-sm text-slate-500">
+                Season, week, and stage are calculated automatically from the game date.
+            </p>
 
             <button
                 className="bg-blue-600 text-white px-4 py-2 rounded"
