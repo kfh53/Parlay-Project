@@ -86,7 +86,10 @@ export async function savePick(formData: FormData) {
                 parlay_id: parlayId,
                 user_id: targetUserId,
                 selection,
-                odds
+                odds,
+                // A pending pick has no result yet. Explicitly use NULL instead of
+                // the database default, which does not satisfy picks_result_check.
+                result: null
             });
 
         if (error) {
