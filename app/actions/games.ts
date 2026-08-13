@@ -1,6 +1,7 @@
 "use server";
 
 import { getSupabaseServerClient } from "@/lib/supabase-server";
+import { getFootballMetadata } from "@/lib/football-calendar";
 import { revalidatePath } from "next/cache";
 
 function optionalInteger(value: FormDataEntryValue | null, label: string) {
@@ -43,6 +44,8 @@ export async function createGame(formData: FormData) {
         );
     }
 
+    const footballMetadata = getFootballMetadata(gameDate);
+
 
     const {
         data: {
@@ -69,9 +72,9 @@ export async function createGame(formData: FormData) {
                 total_odds: totalOdds,
                 notes,
                 created_by: user.id,
-                season,
-                week,
-                stage
+                season: season ?? footballMetadata.season,
+                week: week ?? footballMetadata.week,
+                stage: stage ?? footballMetadata.stage
             });
 
 
