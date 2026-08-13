@@ -3,6 +3,16 @@
 import { getSupabaseServerClient } from "@/lib/supabase-server";
 import { revalidatePath } from "next/cache";
 
+function optionalInteger(value: FormDataEntryValue | null, label: string) {
+    if (value === null || value.toString().trim() === "") return null;
+
+    const number = Number.parseInt(value.toString(), 10);
+    if (!Number.isInteger(number)) {
+        throw new Error(`${label} must be a whole number.`);
+    }
+
+    return number;
+}
 
 export async function createGame(formData: FormData) {
 
@@ -16,6 +26,15 @@ export async function createGame(formData: FormData) {
 
     const gameDate =
         formData.get("gameDate")?.toString();
+    const totalOdds = optionalInteger(formData.get("totalOdds"), "Total odds");
+    const season = optionalInteger(formData.get("season"), "Season");
+    const week = optionalInteger(formData.get("week"), "Week");
+    const stage = formData.get("stage")?.toString() || null;
+    const notes = formData.get("notes")?.toString().trim() || null;
+
+    if (stage && !["regular", "wild_card", "divisional", "conference", "super_bowl"].includes(stage)) {
+        throw new Error("Invalid stage.");
+    }
 
 
     if (!title || !gameDate) {
@@ -46,7 +65,13 @@ export async function createGame(formData: FormData) {
                 title,
                 game_date: gameDate,
                 status: "open",
-                created_by: user.id
+                result: null,
+                total_odds: totalOdds,
+                notes,
+                created_by: user.id,
+                season,
+                week,
+                stage
             });
 
 

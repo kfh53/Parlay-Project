@@ -90,9 +90,15 @@ export async function completeGame(
         throw new Error("Enter a result for every pick before completing the game");
     }
 
+    const result = picks.some(pick => pick.result === "loss")
+        ? "loss"
+        : picks.some(pick => pick.result === "win")
+            ? "win"
+            : "push";
+
     const { error } = await supabase
         .from("parlays")
-        .update({ status: "complete" })
+        .update({ status: "complete", result })
         .eq("id", id);
 
     if (error) {
