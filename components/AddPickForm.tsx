@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 import { savePick } from "@/app/actions/picks";
 import { Pick } from "@/lib/types";
 
@@ -19,7 +19,24 @@ export default function AddPickForm({
 }) {
 
     const [open, setOpen] = useState(initiallyOpen);
+    const [error, setError] = useState("");
+    const [isSaving, setIsSaving] = useState(false);
     const fieldId = targetUserId ? `${parlayId}-${targetUserId}` : parlayId;
+
+    async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+        event.preventDefault();
+        setError("");
+        setIsSaving(true);
+        const result = await savePick(new FormData(event.currentTarget));
+        setIsSaving(false);
+
+        if (result?.error) {
+            setError(result.error);
+            return;
+        }
+
+        setOpen(false);
+    }
 
 
     if (!open) {
@@ -43,7 +60,7 @@ export default function AddPickForm({
     return (
 
         <form
-            action={savePick}
+            onSubmit={handleSubmit}
             className="space-y-4 rounded-lg border border-slate-200 bg-slate-50 p-4"
         >
 
@@ -97,8 +114,15 @@ export default function AddPickForm({
 
             <div className="space-x-2">
 
+                {error && (
+                    <p className="mb-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700" role="alert">
+                        {error}
+                    </p>
+                )}
+
                 <button
                     type="submit"
+                    disabled={isSaving}
                     className="
                         bg-green-600
                         text-white
@@ -107,7 +131,7 @@ export default function AddPickForm({
                         py-2
                     "
                 >
-                    Save Pick
+                    {isSaving ? "Saving…" : "Save Pick"}
                 </button>
 
 
