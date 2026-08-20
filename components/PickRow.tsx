@@ -85,7 +85,6 @@ export default function PickRow({
                     existingPick={pick}
                     targetUserId={profile.id}
                     targetDisplayName={profile.display_name}
-                    initiallyOpen
                 />
             )}
         </div>

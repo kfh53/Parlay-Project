@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { savePick } from "@/app/actions/picks";
 import { Pick } from "@/lib/types";
 import {
@@ -16,26 +16,43 @@ export default function AddPickForm({
     gameTitle,
     existingPick,
     targetUserId,
-    targetDisplayName,
-    initiallyOpen = false
+    targetDisplayName
 }: {
     parlayId: string;
     gameTitle: string;
     existingPick?: Pick;
     targetUserId?: string;
     targetDisplayName?: string;
-    initiallyOpen?: boolean;
 }) {
 
-    const [open, setOpen] = useState(initiallyOpen);
+    const [open, setOpen] = useState(false);
     const [error, setError] = useState("");
     const [isSaving, setIsSaving] = useState(false);
     const [betType, setBetType] = useState(existingPick?.bet_type ?? "");
+    const dialogRef = useRef<HTMLDivElement>(null);
     const fieldId = targetUserId ? `${parlayId}-${targetUserId}` : parlayId;
     const teams = matchupTeams(gameTitle);
     const selectedBetType = betType as BetType;
     const showPlayer = Boolean(betType) && betTypeNeedsPlayer(selectedBetType);
     const showTeam = Boolean(betType) && betTypeNeedsTeam(selectedBetType);
+
+    useEffect(() => {
+        if (!open) return;
+
+        const previousOverflow = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+        dialogRef.current?.focus();
+
+        function handleKeyDown(event: KeyboardEvent) {
+            if (event.key === "Escape" && !isSaving) setOpen(false);
+        }
+
+        window.addEventListener("keydown", handleKeyDown);
+        return () => {
+            document.body.style.overflow = previousOverflow;
+            window.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [open, isSaving]);
 
     async function handleSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -65,7 +82,9 @@ export default function AddPickForm({
                     py-2
                 "
             >
-                {existingPick ? "Edit My Pick" : "Add My Pick"}
+                {existingPick
+                    ? targetDisplayName ? `Edit ${targetDisplayName}'s Pick` : "Edit My Pick"
+                    : targetDisplayName ? `Add ${targetDisplayName}'s Pick` : "Add My Pick"}
             </button>
         );
     }
@@ -73,10 +92,42 @@ export default function AddPickForm({
 
     return (
 
-        <form
-            onSubmit={handleSubmit}
-            className="dark-pick-form space-y-4 rounded-lg border p-4"
+        <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm"
+            onMouseDown={event => {
+                if (event.target === event.currentTarget && !isSaving) setOpen(false);
+            }}
         >
+            <div
+                ref={dialogRef}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby={`pick-form-title-${fieldId}`}
+                tabIndex={-1}
+                className="w-full max-w-lg outline-none"
+            >
+            <form
+                onSubmit={handleSubmit}
+                className="dark-pick-form max-h-[calc(100vh-2rem)] space-y-4 overflow-y-auto rounded-xl border p-5 shadow-2xl"
+            >
+
+            <div className="flex items-start justify-between gap-4">
+                <div>
+                    <h2 id={`pick-form-title-${fieldId}`} className="text-xl font-bold text-slate-100">
+                        {existingPick ? "Edit pick" : "Add a pick"}
+                    </h2>
+                    <p className="mt-1 text-sm text-slate-400">{gameTitle}</p>
+                </div>
+                <button
+                    type="button"
+                    onClick={() => setOpen(false)}
+                    disabled={isSaving}
+                    aria-label="Close pick form"
+                    className="rounded-md px-2 py-1 text-2xl leading-none text-slate-400 hover:bg-slate-700 hover:text-white disabled:opacity-50"
+                >
+                    &times;
+                </button>
+            </div>
 
             <input
                 type="hidden"
@@ -226,6 +277,7 @@ export default function AddPickForm({
                 <button
                     type="button"
                     onClick={() => setOpen(false)}
+                    disabled={isSaving}
                     className="
                         bg-slate-600
                         text-white
@@ -240,7 +292,9 @@ export default function AddPickForm({
             </div>
 
 
-        </form>
+            </form>
+            </div>
+        </div>
 
     );
 }
