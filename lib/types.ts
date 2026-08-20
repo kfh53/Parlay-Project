@@ -7,6 +7,9 @@ export interface Pick {
     id: string;
     user_id: string;
     selection: string;
+    player_name?: string | null;
+    bet_type?: string | null;
+    team_name?: string | null;
     odds: number;
 
     result?: string;

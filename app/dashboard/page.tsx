@@ -18,6 +18,9 @@ export default async function Dashboard() {
                         id,
                         user_id,
                         selection,
+                        player_name,
+                        bet_type,
+                        team_name,
                         odds,
                         result
                     )

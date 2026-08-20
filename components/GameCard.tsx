@@ -106,6 +106,7 @@ export default function GameCard({
 
                 <AddPickForm
                     parlayId={parlay.id}
+                    gameTitle={parlay.title}
                     existingPick={myPick}
                 />
 

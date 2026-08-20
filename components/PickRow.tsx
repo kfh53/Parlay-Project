@@ -11,6 +11,7 @@ interface PickRowProps {
     showResultColor: boolean;
     showPickForm: boolean;
     parlayId: string;
+    gameTitle: string;
 }
 
 export default function PickRow({
@@ -21,7 +22,8 @@ export default function PickRow({
     showResultForm,
     showResultColor,
     showPickForm,
-    parlayId
+    parlayId,
+    gameTitle
 }: PickRowProps) {
 
     const pickResultStyle = showResultColor && pick?.result === "win"
@@ -79,6 +81,7 @@ export default function PickRow({
             {showPickForm && (
                 <AddPickForm
                     parlayId={parlayId}
+                    gameTitle={gameTitle}
                     existingPick={pick}
                     targetUserId={profile.id}
                     targetDisplayName={profile.display_name}

@@ -34,6 +34,9 @@ create table public.picks (
         on delete cascade,
     created_at timestamptz not null default now(),
     selection text not null,
+    player_name text,
+    bet_type text,
+    team_name text,
     odds integer not null,
     result text,
     notes text,
@@ -79,6 +82,18 @@ create index picks_user_id_idx
 
 create index picks_parlay_id_idx
     on public.picks(parlay_id);
+
+create index picks_player_name_idx
+    on public.picks(player_name)
+    where player_name is not null;
+
+create index picks_bet_type_idx
+    on public.picks(bet_type)
+    where bet_type is not null;
+
+create index picks_team_name_idx
+    on public.picks(team_name)
+    where team_name is not null;
 
 create index parlays_game_date_idx
     on public.parlays(game_date);

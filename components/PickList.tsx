@@ -45,6 +45,7 @@ export default function PickList({
                         showResultColor={parlay.status === "complete"}
                         showPickForm={showPickForms}
                         parlayId={parlay.id}
+                        gameTitle={parlay.title}
                     />
                 );
             })}
