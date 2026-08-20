@@ -13,6 +13,11 @@ function formatWinRate(wins: number, total: number) {
     return total ? `${((wins / total) * 100).toFixed(2)}%` : "0.00%";
 }
 
+function getSeasonYear(gameDate: string) {
+    const [year, month] = gameDate.split("-").map(Number);
+    return String(month <= 2 ? year - 1 : year);
+}
+
 export default async function StatsPage() {
     const supabase = await getSupabaseServerClient();
 
@@ -130,7 +135,7 @@ export default async function StatsPage() {
         return series;
     }
 
-    const seasons = [...new Set(chronologicalParlays.map(parlay => parlay.game_date.slice(0, 4)))]
+    const seasons = [...new Set(chronologicalParlays.map(parlay => getSeasonYear(parlay.game_date)))]
         .sort((a, b) => b.localeCompare(a));
     const winRateDatasets: WinRateDataset[] = [
         {
@@ -140,10 +145,10 @@ export default async function StatsPage() {
             dates: chronologicalParlays.map(parlay => parlay.game_date)
         },
         ...seasons.map(season => {
-            const games = chronologicalParlays.filter(parlay => parlay.game_date.startsWith(season));
+            const games = chronologicalParlays.filter(parlay => getSeasonYear(parlay.game_date) === season);
             return {
                 value: season,
-                label: season,
+                label: `${season} season`,
                 series: buildWinRateDataset(games),
                 dates: games.map(parlay => parlay.game_date)
             };
