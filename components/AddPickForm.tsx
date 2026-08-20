@@ -75,7 +75,7 @@ export default function AddPickForm({
 
         <form
             onSubmit={handleSubmit}
-            className="space-y-4 rounded-lg border border-slate-200 bg-slate-50 p-4"
+            className="dark-pick-form space-y-4 rounded-lg border p-4"
         >
 
             <input
@@ -203,7 +203,7 @@ export default function AddPickForm({
             <div className="space-x-2">
 
                 {error && (
-                    <p className="mb-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700" role="alert">
+                    <p className="mb-3 rounded-md border border-red-800 bg-red-950 px-3 py-2 text-sm font-medium text-red-300" role="alert">
                         {error}
                     </p>
                 )}
@@ -227,7 +227,8 @@ export default function AddPickForm({
                     type="button"
                     onClick={() => setOpen(false)}
                     className="
-                        bg-gray-300
+                        bg-slate-600
+                        text-white
                         rounded
                         px-4
                         py-2

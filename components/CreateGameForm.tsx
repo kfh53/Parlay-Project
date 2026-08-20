@@ -21,7 +21,7 @@ export default function CreateGameForm() {
         <form
             action={createGame}
             onSubmit={validateGame}
-            className="bg-white rounded-xl shadow p-6 space-y-4"
+            className="space-y-4 rounded-xl border border-slate-700 bg-slate-900 p-6 shadow"
         >
             <h2 className="text-xl font-semibold">
                 Create New Game
@@ -35,7 +35,7 @@ export default function CreateGameForm() {
                 <input
                     id="game-title"
                     name="title"
-                    className="border rounded p-2 w-full"
+                    className="w-full rounded border border-slate-600 bg-slate-800 p-2 text-slate-100"
                 />
             </div>
 
@@ -48,11 +48,11 @@ export default function CreateGameForm() {
                     id="game-date"
                     type="date"
                     name="gameDate"
-                    className="border rounded p-2 w-full"
+                    className="w-full rounded border border-slate-600 bg-slate-800 p-2 text-slate-100"
                 />
             </div>
 
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-slate-400">
                 Season, week, and stage are calculated automatically from the game date.
             </p>
 

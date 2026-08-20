@@ -49,11 +49,11 @@ export default function GameCard({
 
     const resultCardStyle = hasResolvedResults
         ? isWinningParlay
-            ? "border-emerald-400 bg-emerald-200"
+            ? "border-emerald-700 bg-emerald-950/70"
             : isPushedParlay
-                ? "border-amber-400 bg-amber-100"
-                : "border-red-400 bg-red-200"
-        : "border-slate-200 bg-white";
+                ? "border-amber-700 bg-amber-950/60"
+                : "border-red-800 bg-red-950/70"
+        : "border-slate-700 bg-slate-900";
 
 
     return (
@@ -68,12 +68,12 @@ export default function GameCard({
                 </h2>
 
 
-                <p className="text-slate-700">
+                <p className="text-slate-300">
                     {parlay.game_date}
                 </p>
 
 
-                <p className="text-sm font-semibold mt-1 text-slate-800">
+                <p className="text-sm font-semibold mt-1 text-slate-200">
                     Status: {parlay.status}
                 </p>
 
@@ -112,7 +112,7 @@ export default function GameCard({
 
             ) : (
 
-                <div className="text-slate-700 italic">
+                <div className="text-slate-400 italic">
                     Picks are locked
                 </div>
 

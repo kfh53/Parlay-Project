@@ -27,13 +27,13 @@ export default function PickRow({
 }: PickRowProps) {
 
     const pickResultStyle = showResultColor && pick?.result === "win"
-        ? "border border-emerald-300 bg-emerald-100"
+        ? "border border-emerald-700 bg-emerald-950/60"
         : showResultColor && pick?.result === "push"
-            ? "border border-yellow-300 bg-yellow-100"
+            ? "border border-yellow-700 bg-yellow-950/60"
         : showResultColor && pick?.result
-            ? "border border-red-300 bg-red-100"
+            ? "border border-red-800 bg-red-950/60"
             : isCurrentUser
-                ? "border border-blue-300 bg-blue-50"
+                ? "border border-blue-800 bg-blue-950/50"
                 : "";
 
     return (
@@ -66,7 +66,7 @@ export default function PickRow({
             </div>
 
             {pick && showResult && !showResultForm && (
-                <p className="text-sm text-slate-700">
+                <p className="text-sm text-slate-300">
                     Result: {pick.result ?? "Pending"}
                 </p>
             )}

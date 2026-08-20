@@ -74,7 +74,7 @@ export default async function Dashboard() {
 
             <div className="space-y-2">
 
-            <h1 className="text-3xl font-bold tracking-tight text-slate-900">
+            <h1 className="text-3xl font-bold tracking-tight text-slate-100">
                 Dashboard
             </h1>
             </div>
@@ -93,17 +93,17 @@ export default async function Dashboard() {
             <section className="space-y-4">
 
                 <div className="flex items-center justify-between gap-4">
-                <h2 className="text-2xl font-bold text-slate-900">
+                <h2 className="text-2xl font-bold text-slate-100">
                     Open Games
                 </h2>
-                <span className="rounded-full bg-blue-50 px-3 py-1 text-sm font-semibold text-blue-700">
+                <span className="rounded-full bg-blue-950 px-3 py-1 text-sm font-semibold text-blue-300">
                     {openGames.length}
                 </span>
                 </div>
 
 
                 {openGames.length === 0 && (
-                    <p className="text-gray-500">
+                    <p className="text-slate-500">
                         No open games
                     </p>
                 )}
@@ -136,17 +136,17 @@ export default async function Dashboard() {
             <section className="space-y-4">
 
                 <div className="flex items-center justify-between gap-4">
-                <h2 className="text-2xl font-bold text-slate-900">
+                <h2 className="text-2xl font-bold text-slate-100">
                     Locked Games
                 </h2>
-                <span className="rounded-full bg-amber-50 px-3 py-1 text-sm font-semibold text-amber-700">
+                <span className="rounded-full bg-amber-950 px-3 py-1 text-sm font-semibold text-amber-300">
                     {lockedGames.length}
                 </span>
                 </div>
 
 
                 {lockedGames.length === 0 && (
-                    <p className="text-gray-500">
+                    <p className="text-slate-500">
                         No locked games
                     </p>
                 )}
@@ -179,17 +179,17 @@ export default async function Dashboard() {
             <section className="space-y-4">
 
                 <div className="flex items-center justify-between gap-4">
-                <h2 className="text-2xl font-bold text-slate-900">
+                <h2 className="text-2xl font-bold text-slate-100">
                     Completed Games
                 </h2>
-                <span className="rounded-full bg-emerald-50 px-3 py-1 text-sm font-semibold text-emerald-700">
+                <span className="rounded-full bg-emerald-950 px-3 py-1 text-sm font-semibold text-emerald-300">
                     {completedGames.length}
                 </span>
                 </div>
 
 
                 {completedGames.length === 0 && (
-                    <p className="text-gray-500">
+                    <p className="text-slate-500">
                         No completed games
                     </p>
                 )}

@@ -30,7 +30,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <a
           aria-label="View Parlay Tracker on GitHub"
-          className="fixed right-4 top-4 z-50 inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white/90 text-slate-700 shadow-sm backdrop-blur transition hover:border-slate-300 hover:bg-slate-950 hover:text-white focus:outline-none focus:ring-4 focus:ring-blue-200"
+          className="fixed right-4 top-4 z-50 inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-700 bg-slate-800/90 text-slate-300 shadow-sm backdrop-blur transition hover:border-slate-500 hover:bg-slate-700 hover:text-white focus:outline-none focus:ring-4 focus:ring-blue-900"
           href="https://github.com/kfh53/Parlay-Project"
           rel="noreferrer"
           target="_blank"

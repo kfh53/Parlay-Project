@@ -82,7 +82,7 @@ export default async function StatsPage() {
     return (
         <main className="space-y-8">
             <div className="space-y-2">
-                <h1 className="text-3xl font-bold tracking-tight text-slate-900">
+                <h1 className="text-3xl font-bold tracking-tight text-slate-100">
                     Stats
                 </h1>
             </div>
@@ -94,9 +94,9 @@ export default async function StatsPage() {
                 <StatCard label="Parlay win rate" value={winRate} tone="blue" />
             </section>
 
-            <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-                <div className="border-b border-slate-200 px-5 py-4">
-                    <h2 className="text-lg font-bold text-slate-900">Player parlay records</h2>
+            <section className="overflow-hidden rounded-xl border border-slate-700 bg-slate-900 shadow-sm">
+                <div className="border-b border-slate-700 px-5 py-4">
+                    <h2 className="text-lg font-bold text-slate-100">Player parlay records</h2>
                 </div>
 
                 {playerStats.length === 0 ? (
@@ -106,7 +106,7 @@ export default async function StatsPage() {
                 ) : (
                     <div className="overflow-x-auto">
                         <table className="w-full min-w-[42rem] text-left text-sm">
-                            <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+                            <thead className="bg-slate-800 text-xs uppercase tracking-wide text-slate-400">
                                 <tr>
                                     <th className="px-5 py-3 font-semibold">Player</th>
                                     <th className="px-5 py-3 font-semibold">Parlays</th>
@@ -116,14 +116,14 @@ export default async function StatsPage() {
                                     <th className="px-5 py-3 font-semibold">Win rate</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-slate-100 text-slate-700">
+                            <tbody className="divide-y divide-slate-800 text-slate-300">
                                 {playerStats.map(player => (
                                     <tr key={player.id}>
-                                        <td className="px-5 py-4 font-semibold text-slate-900">{player.name}</td>
+                                        <td className="px-5 py-4 font-semibold text-slate-100">{player.name}</td>
                                         <td className="px-5 py-4">{player.total}</td>
-                                        <td className="px-5 py-4 text-emerald-700">{player.wins}</td>
-                                        <td className="px-5 py-4 text-red-700">{player.losses}</td>
-                                        <td className="px-5 py-4 text-amber-700">{player.pushes}</td>
+                                        <td className="px-5 py-4 text-emerald-300">{player.wins}</td>
+                                        <td className="px-5 py-4 text-red-300">{player.losses}</td>
+                                        <td className="px-5 py-4 text-amber-300">{player.pushes}</td>
                                         <td className="px-5 py-4">{player.winRate}</td>
                                     </tr>
                                 ))}
@@ -146,16 +146,16 @@ function StatCard({
     tone?: "slate" | "emerald" | "red" | "blue";
 }) {
     const toneClasses = {
-        slate: "border-slate-200 bg-white",
-        emerald: "border-emerald-200 bg-emerald-50",
-        red: "border-red-200 bg-red-50",
-        blue: "border-blue-200 bg-blue-50"
+        slate: "border-slate-700 bg-slate-900",
+        emerald: "border-emerald-800 bg-emerald-950/60",
+        red: "border-red-800 bg-red-950/60",
+        blue: "border-blue-800 bg-blue-950/60"
     };
 
     return (
         <div className={`rounded-xl border p-5 ${toneClasses[tone]}`}>
-            <p className="text-sm font-medium text-slate-600">{label}</p>
-            <p className="mt-2 text-3xl font-bold text-slate-900">{value}</p>
+            <p className="text-sm font-medium text-slate-400">{label}</p>
+            <p className="mt-2 text-3xl font-bold text-slate-100">{value}</p>
         </div>
     );
 }

@@ -4,10 +4,11 @@ export default function DashboardLayout({
     children: React.ReactNode
 }) {
     return (
-        <div className="min-h-screen bg-gray-100">
+        <div className="min-h-screen bg-slate-950 text-slate-200">
 
             <header className="
-                bg-white
+                bg-slate-900
+                border-slate-800
                 border-b
                 p-4
             ">
