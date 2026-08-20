@@ -61,7 +61,7 @@ export async function completeGame(
 
     const { data: parlay, error: parlayError } = await supabase
         .from("parlays")
-        .select("status, created_by")
+        .select("status, created_by, total_odds")
         .eq("id", id)
         .single();
 
@@ -75,6 +75,10 @@ export async function completeGame(
 
     if (parlay.created_by !== user.id) {
         throw new Error("Only the game creator can complete this game");
+    }
+
+    if (parlay.total_odds === null) {
+        throw new Error("Enter total odds before completing the game");
     }
 
     const { data: picks, error: picksError } = await supabase

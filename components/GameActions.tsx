@@ -9,6 +9,8 @@ interface GameActionsProps {
     id: string;
     canManageResults: boolean;
     missingPickNames: string[];
+    canComplete: boolean;
+    completionMessage?: string;
     onManageAllPicks: () => void;
     onEnterResults: () => void;
 }
@@ -19,6 +21,8 @@ export default function GameActions({
     id,
     canManageResults,
     missingPickNames,
+    canComplete,
+    completionMessage,
     onManageAllPicks,
     onEnterResults
 }: GameActionsProps) {
@@ -40,7 +44,7 @@ export default function GameActions({
 
 
     return (
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
 
 
             {status === "open" && (
@@ -112,18 +116,29 @@ export default function GameActions({
                     />
 
                     <button
+                        disabled={!canComplete}
+                        title={!canComplete ? completionMessage : undefined}
                         className="
                             bg-blue-600
                             text-white
                             rounded
                             px-4
                             py-2
+                            disabled:cursor-not-allowed
+                            disabled:bg-slate-700
+                            disabled:text-slate-400
                         "
                     >
                         Complete Game
                     </button>
 
                 </form>
+
+                {!canComplete && completionMessage && (
+                    <p className="basis-full text-sm text-amber-300" role="status">
+                        {completionMessage}
+                    </p>
+                )}
 
                 </>
 

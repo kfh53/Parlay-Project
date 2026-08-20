@@ -47,6 +47,18 @@ export default function GameCard({
         hasResolvedResults &&
         parlay.picks.every(pick => pick.result === "push");
 
+    const hasAllResults =
+        parlay.picks.length > 0 &&
+        parlay.picks.every(pick => Boolean(pick.result));
+    const hasTotalOdds = parlay.total_odds !== null && parlay.total_odds !== undefined;
+    const completionMessage = !hasAllResults && !hasTotalOdds
+        ? "Enter all pick results and total odds before completing."
+        : !hasAllResults
+            ? "Enter a result for every pick before completing."
+            : !hasTotalOdds
+                ? "Enter total odds before completing."
+                : undefined;
+
     const resultCardStyle = hasResolvedResults
         ? isWinningParlay
             ? "border-emerald-700 bg-emerald-950/70"
@@ -129,6 +141,8 @@ export default function GameCard({
                 id={parlay.id}
                 canManageResults={parlay.created_by === currentUserId}
                 missingPickNames={missingPickNames}
+                canComplete={hasAllResults && hasTotalOdds}
+                completionMessage={completionMessage}
                 onManageAllPicks={() => setIsManagingAllPicks(true)}
                 onEnterResults={() => setIsEnteringResults(true)}
             />

@@ -1,4 +1,5 @@
 import { getSupabaseServerClient } from "@/lib/supabase-server";
+import WinRateChart, { WinRateSeries } from "@/components/WinRateChart";
 
 type ParlayOutcome = "win" | "loss" | "push";
 
@@ -20,6 +21,7 @@ export default async function StatsPage() {
             .from("parlays")
             .select(`
                 id,
+                    game_date,
                     status,
                     picks (
                         id,
@@ -89,6 +91,41 @@ export default async function StatsPage() {
         })
         .sort((a, b) => b.wins / (b.wins + b.losses) - a.wins / (a.wins + a.losses) || b.wins - a.wins || a.name.localeCompare(b.name));
 
+    const chronologicalParlays = [...parlayResults].sort((a, b) =>
+        a.game_date.localeCompare(b.game_date) || a.id.localeCompare(b.id)
+    );
+    const cumulativeRecords = new Map<string, { wins: number; decisions: number }>();
+    const winRateSeries: WinRateSeries[] = (profiles ?? []).map(profile => ({
+        id: profile.id,
+        name: profile.display_name,
+        points: []
+    }));
+
+    chronologicalParlays.forEach((parlay, game) => {
+        for (const player of winRateSeries) {
+            const pick = parlay.picks.find(item => item.user_id === player.id);
+            const record = cumulativeRecords.get(player.id) ?? { wins: 0, decisions: 0 };
+
+            if (pick?.result === "win") {
+                record.wins += 1;
+                record.decisions += 1;
+            } else if (pick?.result === "loss") {
+                record.decisions += 1;
+            }
+
+            cumulativeRecords.set(player.id, record);
+            if (record.decisions > 0) {
+                player.points.push({
+                    game,
+                    date: parlay.game_date,
+                    winRate: (record.wins / record.decisions) * 100,
+                    wins: record.wins,
+                    decisions: record.decisions
+                });
+            }
+        }
+    });
+
     return (
         <main className="space-y-8">
             <div className="space-y-2">
@@ -143,6 +180,17 @@ export default async function StatsPage() {
                         </table>
                     </div>
                 )}
+            </section>
+
+            <section className="rounded-xl border border-slate-700 bg-slate-900 p-5 shadow-sm">
+                <div className="mb-5">
+                    <h2 className="text-lg font-bold text-slate-100">Win percentage over time</h2>
+                    <p className="mt-1 text-sm text-slate-400">Cumulative pick win rate; pushes are excluded.</p>
+                </div>
+                <WinRateChart
+                    series={winRateSeries}
+                    dates={chronologicalParlays.map(parlay => parlay.game_date)}
+                />
             </section>
         </main>
     );
