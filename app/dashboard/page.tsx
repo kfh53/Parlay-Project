@@ -56,6 +56,8 @@ export default async function Dashboard() {
     const completedGames =
         parlays?.filter(
             p => p.status === "complete"
+        ).sort(
+            (a, b) => b.game_date.localeCompare(a.game_date)
         ) ?? [];
 
 
