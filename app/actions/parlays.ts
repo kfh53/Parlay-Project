@@ -79,7 +79,7 @@ export async function completeGame(
 
     const { data: picks, error: picksError } = await supabase
         .from("picks")
-        .select("result")
+        .select("id, result")
         .eq("parlay_id", id);
 
     if (picksError) {
@@ -95,6 +95,25 @@ export async function completeGame(
         : picks.some(pick => pick.result === "win")
             ? "win"
             : "push";
+
+    const losingPicks = picks.filter(pick => pick.result === "loss");
+    const killerPickId = losingPicks.length === 1 ? losingPicks[0].id : null;
+
+    // Recalculate every flag so correcting results before completion cannot
+    // leave a stale parlay killer on another pick.
+    const killerUpdates = await Promise.all(
+        picks.map(pick =>
+            supabase
+                .from("picks")
+                .update({ parlay_killer: pick.id === killerPickId })
+                .eq("id", pick.id)
+        )
+    );
+
+    const killerUpdateError = killerUpdates.find(update => update.error)?.error;
+    if (killerUpdateError) {
+        throw killerUpdateError;
+    }
 
     const { error } = await supabase
         .from("parlays")
