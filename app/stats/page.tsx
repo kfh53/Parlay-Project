@@ -24,7 +24,8 @@ export default async function StatsPage() {
                     picks (
                         id,
                         user_id,
-                        result
+                        result,
+                        parlay_killer
                     )
             `)
             .eq("status", "complete")
@@ -54,7 +55,14 @@ export default async function StatsPage() {
     const decidedParlays = parlayResults.filter(parlay => parlay.outcome !== "push");
     const winRate = formatWinRate(wins, decidedParlays.length);
 
-    const userStats = new Map<string, { id: string; name: string; wins: number; losses: number; pushes: number }>();
+    const userStats = new Map<string, {
+        id: string;
+        name: string;
+        wins: number;
+        losses: number;
+        pushes: number;
+        parlayKillers: number;
+    }>();
 
     for (const parlay of parlayResults) {
         for (const pick of parlay.picks) {
@@ -63,11 +71,13 @@ export default async function StatsPage() {
                 name: profileNames.get(pick.user_id) ?? "Unknown player",
                 wins: 0,
                 losses: 0,
-                pushes: 0
+                pushes: 0,
+                parlayKillers: 0
             };
             if (pick.result === "win") stat.wins += 1;
             if (pick.result === "loss") stat.losses += 1;
             if (pick.result === "push") stat.pushes += 1;
+            if (pick.parlay_killer) stat.parlayKillers += 1;
             userStats.set(pick.user_id, stat);
         }
     }
@@ -105,7 +115,7 @@ export default async function StatsPage() {
                     </p>
                 ) : (
                     <div className="overflow-x-auto">
-                        <table className="w-full min-w-[42rem] text-left text-sm">
+                        <table className="w-full min-w-[50rem] text-left text-sm">
                             <thead className="bg-slate-800 text-xs uppercase tracking-wide text-slate-400">
                                 <tr>
                                     <th className="px-5 py-3 font-semibold">Player</th>
@@ -113,6 +123,7 @@ export default async function StatsPage() {
                                     <th className="px-5 py-3 font-semibold">Wins</th>
                                     <th className="px-5 py-3 font-semibold">Losses</th>
                                     <th className="px-5 py-3 font-semibold">Pushes</th>
+                                    <th className="px-5 py-3 font-semibold">Parlay killers</th>
                                     <th className="px-5 py-3 font-semibold">Win rate</th>
                                 </tr>
                             </thead>
@@ -124,6 +135,7 @@ export default async function StatsPage() {
                                         <td className="px-5 py-4 text-emerald-300">{player.wins}</td>
                                         <td className="px-5 py-4 text-red-300">{player.losses}</td>
                                         <td className="px-5 py-4 text-amber-300">{player.pushes}</td>
+                                        <td className="px-5 py-4 text-red-300">{player.parlayKillers}</td>
                                         <td className="px-5 py-4">{player.winRate}</td>
                                     </tr>
                                 ))}
