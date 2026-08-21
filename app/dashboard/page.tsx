@@ -73,15 +73,6 @@ export default async function Dashboard() {
         <main className="space-y-10">
 
 
-            <div className="space-y-2">
-
-            <h1 className="text-3xl font-bold tracking-tight text-slate-100">
-                Dashboard
-            </h1>
-            </div>
-
-
-
             {/* CURRENT GAMES */}
 
             <section className="space-y-4">
@@ -89,7 +80,6 @@ export default async function Dashboard() {
                 <div className="flex items-center justify-between gap-4">
                     <div>
                         <h2 className="text-2xl font-bold text-slate-100">Current Games</h2>
-                        <p className="mt-1 text-sm text-slate-400">Make picks, lock entries, and record results</p>
                     </div>
                     <span className="rounded-full bg-blue-950 px-3 py-1 text-sm font-semibold text-blue-300">
                         {currentGames.length}
@@ -130,7 +120,6 @@ export default async function Dashboard() {
                 <div className="flex items-center justify-between gap-4">
                     <div>
                         <h2 className="text-2xl font-bold text-slate-100">Upcoming Games</h2>
-                        <p className="mt-1 text-sm text-slate-400">Announced prime-time games and custom matchups</p>
                     </div>
                     <span className="rounded-full bg-slate-800 px-3 py-1 text-sm font-semibold text-slate-300">
                         {upcomingGames.length}

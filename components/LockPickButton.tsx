@@ -5,7 +5,7 @@ import { lockPick } from "@/app/actions/picks";
 
 export default function LockPickButton({
     pickId,
-    label = "Lock my pick"
+    label = "Lock My Pick"
 }: {
     pickId: string;
     label?: string;
