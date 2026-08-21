@@ -8,6 +8,7 @@ import {
     isBetType,
     matchupTeams
 } from "@/lib/pick-fields";
+import { sendGameLockedEmails } from "@/lib/game-lock-email";
 
 export type SavePickResult = { error?: string; success?: true };
 
@@ -184,13 +185,24 @@ export async function lockPick(formData: FormData) {
         profiles.every(profile => lockedUserIds.has(profile.id));
 
     if (everyPickIsLocked) {
-        const { error: gameLockError } = await supabase
+        const { data: lockedGame, error: gameLockError } = await supabase
             .from("parlays")
             .update({ status: "locked" })
             .eq("id", pick.parlay_id)
-            .eq("status", "open");
+            .eq("status", "open")
+            .select("id")
+            .maybeSingle();
 
         if (gameLockError) throw gameLockError;
+
+        if (lockedGame) {
+            try {
+                await sendGameLockedEmails(pick.parlay_id);
+            } catch (emailError) {
+                // A notification outage should never undo a successfully locked game.
+                console.error("Game locked, but notification email failed:", emailError);
+            }
+        }
     }
 
     revalidatePath("/dashboard");
