@@ -2,6 +2,7 @@ import { getSupabaseServerClient } from "@/lib/supabase-server";
 import GameCard from "@/components/GameCard";
 import CreateGameForm from "@/components/CreateGameForm";
 import { ensurePrimeTimeGames } from "@/app/actions/games";
+import UpcomingGameCard from "@/components/UpcomingGameCard";
 
 export default async function Dashboard() {
 
@@ -44,25 +45,21 @@ export default async function Dashboard() {
     }
 
 
-    const openGames =
+    const upcomingGames =
         parlays?.filter(
-            p => p.status === "open"
+            p => p.status === "upcoming"
         ) ?? [];
 
 
-    const lockedGames =
+    const currentGames =
         parlays?.filter(
-            p => p.status === "locked"
+            p => p.status === "open" || p.status === "locked"
         ) ?? [];
 
 
-    const completedGames =
-        parlays?.filter(
-            p => p.status === "complete"
-        ).sort(
-            (a, b) => b.game_date.localeCompare(a.game_date)
-        ) ?? [];
-
+    const completedGames = parlays
+        ?.filter(p => p.status === "complete")
+        .sort((a, b) => b.game_date.localeCompare(a.game_date)) ?? [];
 
     const {
         data: { user }
@@ -84,29 +81,28 @@ export default async function Dashboard() {
 
 
 
-            {/* OPEN GAMES */}
+            {/* CURRENT GAMES */}
 
             <section className="space-y-4">
 
                 <div className="flex items-center justify-between gap-4">
-                <div>
-                    <h2 className="text-2xl font-bold text-slate-100">
-                        Open Games
-                    </h2>
-                    <p className="mt-1 text-sm text-slate-400">
-                        Announced 2026 prime-time games and custom matchups
-                    </p>
-                </div>
-                <span className="rounded-full bg-blue-950 px-3 py-1 text-sm font-semibold text-blue-300">
-                    {openGames.length}
-                </span>
+                    <div>
+                        <h2 className="text-2xl font-bold text-slate-100">Current Games</h2>
+                        <p className="mt-1 text-sm text-slate-400">Make picks, lock entries, and record results</p>
+                    </div>
+                    <span className="rounded-full bg-blue-950 px-3 py-1 text-sm font-semibold text-blue-300">
+                        {currentGames.length}
+                    </span>
                 </div>
 
-
-                    <div className="flex snap-x snap-mandatory items-center gap-5 overflow-x-auto pb-3 pr-4">
-                        <CreateGameForm />
-
-                        {openGames.map((parlay) => (
+                {currentGames.length === 0 ? (
+                    <div className="rounded-xl border border-dashed border-slate-700 bg-slate-900/40 px-6 py-10 text-center">
+                        <p className="font-medium text-slate-300">No current games</p>
+                        <p className="mt-1 text-sm text-slate-500">Move an upcoming matchup here when you are ready to make picks.</p>
+                    </div>
+                ) : (
+                    <div className="flex snap-x snap-mandatory gap-5 overflow-x-auto pb-3 pr-4">
+                        {currentGames.map((parlay) => (
 
                             <GameCard
                                 key={parlay.id}
@@ -117,6 +113,7 @@ export default async function Dashboard() {
 
                         ))}
                     </div>
+                )}
 
 
             </section>
@@ -125,41 +122,26 @@ export default async function Dashboard() {
 
 
 
-            {/* LOCKED GAMES */}
+            {/* UPCOMING GAMES */}
 
             <section className="space-y-4">
 
                 <div className="flex items-center justify-between gap-4">
-                <h2 className="text-2xl font-bold text-slate-100">
-                    Locked Games
-                </h2>
-                <span className="rounded-full bg-amber-950 px-3 py-1 text-sm font-semibold text-amber-300">
-                    {lockedGames.length}
-                </span>
+                    <div>
+                        <h2 className="text-2xl font-bold text-slate-100">Upcoming Games</h2>
+                        <p className="mt-1 text-sm text-slate-400">Announced prime-time games and custom matchups</p>
+                    </div>
+                    <span className="rounded-full bg-slate-800 px-3 py-1 text-sm font-semibold text-slate-300">
+                        {upcomingGames.length}
+                    </span>
                 </div>
 
-
-                {lockedGames.length === 0 && (
-                    <p className="text-slate-500">
-                        No locked games
-                    </p>
-                )}
-
-
-                {lockedGames.length > 0 && (
-                    <div className="flex snap-x snap-mandatory gap-5 overflow-x-auto pb-3 pr-4">
-                        {lockedGames.map((parlay) => (
-
-                            <GameCard
-                                key={parlay.id}
-                                parlay={parlay}
-                                profiles={profiles ?? []}
-                                currentUserId={user?.id ?? ""}
-                            />
-
-                        ))}
-                    </div>
-                )}
+                <div className="flex snap-x snap-mandatory items-center gap-5 overflow-x-auto pb-3 pr-4">
+                    <CreateGameForm />
+                    {upcomingGames.map(parlay => (
+                        <UpcomingGameCard key={parlay.id} parlay={parlay} />
+                    ))}
+                </div>
 
 
             </section>

@@ -67,7 +67,7 @@ export async function createGame(formData: FormData) {
             .insert({
                 title,
                 game_date: gameDate,
-                status: "open",
+                status: "upcoming",
                 result: null,
                 total_odds: null,
                 notes,
@@ -139,7 +139,7 @@ export async function ensurePrimeTimeGames() {
         .map(game => ({
             title: abbreviateMatchup(game.title),
             game_date: game.gameDate,
-            status: "open",
+            status: "upcoming",
             result: null,
             total_odds: null,
             notes: `${game.window} * ${game.time.replace(" PM", "")} * WEEK ${game.week}`,

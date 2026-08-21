@@ -3,6 +3,24 @@
 import { getSupabaseServerClient } from "@/lib/supabase-server";
 import { revalidatePath } from "next/cache";
 
+export async function promoteGame(formData: FormData) {
+    const id = formData.get("id")?.toString();
+    if (!id) throw new Error("Missing game id");
+
+    const supabase = await getSupabaseServerClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("User not authenticated");
+
+    const { error } = await supabase
+        .from("parlays")
+        .update({ status: "open" })
+        .eq("id", id)
+        .eq("status", "upcoming");
+
+    if (error) throw error;
+    revalidatePath("/dashboard");
+}
+
 export async function lockGame(
     formData: FormData
 ){
