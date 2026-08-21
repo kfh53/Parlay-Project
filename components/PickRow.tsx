@@ -26,23 +26,44 @@ export default function PickRow({
     gameTitle
 }: PickRowProps) {
 
-    const pickResultStyle = showResultColor && pick?.result === "win"
-        ? "border border-emerald-700 bg-emerald-950/60"
-        : showResultColor && pick?.result === "push"
-            ? "border border-yellow-700 bg-yellow-950/60"
-        : showResultColor && pick?.result
-            ? "border border-red-800 bg-red-950/60"
-            : isCurrentUser
-                ? "border border-blue-800 bg-blue-950/50"
-                : "";
+    const outcome = showResultColor && pick?.result
+        ? pick.result === "win"
+            ? {
+                row: "border-l-emerald-500",
+                badge: "border-emerald-500/30 bg-emerald-500/10 text-emerald-300",
+                icon: "✓",
+                label: "Win"
+            }
+            : pick.result === "push"
+                ? {
+                    row: "border-l-amber-400",
+                    badge: "border-amber-400/30 bg-amber-400/10 text-amber-200",
+                    icon: "—",
+                    label: "Push"
+                }
+                : {
+                    row: "border-l-rose-500",
+                    badge: "border-rose-500/30 bg-rose-500/10 text-rose-300",
+                    icon: "×",
+                    label: "Loss"
+                }
+        : null;
+
+    const pickRowStyle = outcome
+        ? `border-l-2 ${outcome.row}`
+        : isCurrentUser
+            ? "border-blue-500/40 bg-blue-500/5"
+            : "";
 
     return (
         <div
             className={`
                 space-y-2
-                rounded
-                p-2
-                ${pickResultStyle}
+                rounded-md
+                border border-slate-700/70
+                bg-slate-950/25
+                p-3
+                ${pickRowStyle}
             `}
         >
 
@@ -57,7 +78,7 @@ export default function PickRow({
                     )}
                 </span>
 
-                <span>
+                <span className="text-right text-slate-200">
                     {pick
                         ? `${pick.selection} (${pick.odds > 0 ? "+" : ""}${pick.odds})`
                         : "Waiting..."
@@ -66,9 +87,16 @@ export default function PickRow({
             </div>
 
             {pick && showResult && !showResultForm && (
-                <p className="text-sm text-slate-300">
-                    Result: {pick.result ?? "Pending"}
-                </p>
+                outcome ? (
+                    <span className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-xs font-bold uppercase tracking-wide ${outcome.badge}`}>
+                        <span aria-hidden="true">{outcome.icon}</span>
+                        {outcome.label}
+                    </span>
+                ) : (
+                    <span className="inline-flex rounded-full border border-slate-600 bg-slate-800/60 px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-slate-300">
+                        Pending
+                    </span>
+                )
             )}
 
             {pick && showResultForm && (
