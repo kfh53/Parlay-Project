@@ -1,5 +1,6 @@
 import { Pick, Profile } from "@/lib/types";
 import AddPickForm from "./AddPickForm";
+import LockPickButton from "./LockPickButton";
 
 interface PickRowProps {
     profile: Profile;
@@ -104,13 +105,21 @@ export default function PickRow({
             )}
 
             {showPickForm && !pick?.is_locked && (
-                <AddPickForm
-                    parlayId={parlayId}
-                    gameTitle={gameTitle}
-                    existingPick={pick}
-                    targetUserId={profile.id}
-                    targetDisplayName={profile.display_name}
-                />
+                <div className="flex flex-wrap gap-2">
+                    <AddPickForm
+                        parlayId={parlayId}
+                        gameTitle={gameTitle}
+                        existingPick={pick}
+                        targetUserId={profile.id}
+                        targetDisplayName={profile.display_name}
+                    />
+                    {pick && (
+                        <LockPickButton
+                            pickId={pick.id}
+                            label={`Lock ${profile.display_name}'s pick`}
+                        />
+                    )}
+                </div>
             )}
         </div>
     );

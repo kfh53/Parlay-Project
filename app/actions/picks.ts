@@ -151,22 +151,21 @@ export async function lockPick(formData: FormData) {
 
     const { data: pick, error: pickError } = await supabase
         .from("picks")
-        .select("id, parlay_id, user_id, is_locked, parlays!inner(status)")
+        .select("id, parlay_id, user_id, is_locked, parlays!inner(status, created_by)")
         .eq("id", pickId)
         .single();
 
     if (pickError) throw pickError;
-    if (pick.user_id !== user.id) throw new Error("You can only lock your own pick");
-    if (pick.is_locked) return;
-
     const parlay = Array.isArray(pick.parlays) ? pick.parlays[0] : pick.parlays;
+    const canLockPick = pick.user_id === user.id || parlay?.created_by === user.id;
+    if (!canLockPick) throw new Error("You do not have permission to lock this pick");
+    if (pick.is_locked) return;
     if (parlay?.status !== "open") throw new Error("This game is not accepting picks");
 
     const { error: lockError } = await supabase
         .from("picks")
         .update({ is_locked: true })
-        .eq("id", pickId)
-        .eq("user_id", user.id);
+        .eq("id", pickId);
 
     if (lockError) throw lockError;
 
