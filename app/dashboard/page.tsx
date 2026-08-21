@@ -103,7 +103,7 @@ export default async function Dashboard() {
                 </div>
 
 
-                    <div className="flex snap-x snap-mandatory items-start gap-5 overflow-x-auto pb-3 pr-4">
+                    <div className="flex snap-x snap-mandatory items-center gap-5 overflow-x-auto pb-3 pr-4">
                         <CreateGameForm />
 
                         {openGames.map((parlay) => (

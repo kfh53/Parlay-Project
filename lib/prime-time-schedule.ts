@@ -6,6 +6,47 @@ export type PrimeTimeGame = {
     time: string;
 };
 
+const TEAM_ABBREVIATIONS: Record<string, string> = {
+    "49ers": "SF",
+    Bears: "CHI",
+    Bengals: "CIN",
+    Bills: "BUF",
+    Broncos: "DEN",
+    Browns: "CLE",
+    Buccaneers: "TB",
+    Cardinals: "ARI",
+    Chargers: "LAC",
+    Chiefs: "KC",
+    Colts: "IND",
+    Commanders: "WAS",
+    Cowboys: "DAL",
+    Dolphins: "MIA",
+    Eagles: "PHI",
+    Falcons: "ATL",
+    Giants: "NYG",
+    Jaguars: "JAX",
+    Jets: "NYJ",
+    Lions: "DET",
+    Packers: "GB",
+    Panthers: "CAR",
+    Patriots: "NE",
+    Raiders: "LV",
+    Rams: "LAR",
+    Ravens: "BAL",
+    Saints: "NO",
+    Seahawks: "SEA",
+    Steelers: "PIT",
+    Texans: "HOU",
+    Titans: "TEN",
+    Vikings: "MIN"
+};
+
+export function abbreviateMatchup(title: string) {
+    const [away, home] = title.split(" at ");
+    if (!away || !home) return title;
+    return `${TEAM_ABBREVIATIONS[away] ?? away} vs ${TEAM_ABBREVIATIONS[home] ?? home}`;
+}
+
 // Announced 2026 national prime-time package games. Late-season flexible
 // slots without an announced matchup are intentionally omitted.
 export const PRIME_TIME_GAMES_2026: PrimeTimeGame[] = [

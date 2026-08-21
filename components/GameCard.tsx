@@ -104,7 +104,6 @@ export default function GameCard({
                 {parlay.notes && (
                     <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-blue-300">
                         {parlay.notes}
-                        {parlay.week ? ` · Week ${parlay.week}` : ""}
                     </p>
                 )}
 

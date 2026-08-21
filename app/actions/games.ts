@@ -2,7 +2,7 @@
 
 import { getSupabaseServerClient } from "@/lib/supabase-server";
 import { getFootballMetadata } from "@/lib/football-calendar";
-import { PRIME_TIME_GAMES_2026 } from "@/lib/prime-time-schedule";
+import { abbreviateMatchup, PRIME_TIME_GAMES_2026 } from "@/lib/prime-time-schedule";
 import { revalidatePath } from "next/cache";
 
 function optionalInteger(value: FormDataEntryValue | null, label: string) {
@@ -95,7 +95,7 @@ export async function ensurePrimeTimeGames() {
 
     const { data: existing, error: selectError } = await supabase
         .from("parlays")
-        .select("title, game_date")
+        .select("id, title, game_date")
         .eq("season", 2026);
 
     if (selectError) {
@@ -103,18 +103,46 @@ export async function ensurePrimeTimeGames() {
         return;
     }
 
+    const scheduledDates = new Map(
+        (existing ?? []).map(game => [`${game.game_date}|${game.title}`, game])
+    );
+
+    // Bring schedule rows seeded by the previous full-name format in line with
+    // the abbreviated historical matchup format.
+    await Promise.all(PRIME_TIME_GAMES_2026.map(async game => {
+        const legacy = scheduledDates.get(`${game.gameDate}|${game.title}`);
+        if (!legacy) return;
+
+        const { error } = await supabase
+            .from("parlays")
+            .update({
+                title: abbreviateMatchup(game.title),
+                notes: `${game.window} * ${game.time.replace(" PM", "")} * WEEK ${game.week}`
+            })
+            .eq("id", legacy.id);
+
+        if (error) console.error("Unable to abbreviate a scheduled matchup:", error);
+    }));
+
     const existingGames = new Set(
-        (existing ?? []).map(game => `${game.game_date}|${game.title}`)
+        (existing ?? []).flatMap(game => {
+            const matchingScheduleGame = PRIME_TIME_GAMES_2026.find(item =>
+                item.gameDate === game.game_date && item.title === game.title
+            );
+            return matchingScheduleGame
+                ? [`${game.game_date}|${abbreviateMatchup(game.title)}`]
+                : [`${game.game_date}|${game.title}`];
+        })
     );
     const missingGames = PRIME_TIME_GAMES_2026
-        .filter(game => !existingGames.has(`${game.gameDate}|${game.title}`))
+        .filter(game => !existingGames.has(`${game.gameDate}|${abbreviateMatchup(game.title)}`))
         .map(game => ({
-            title: game.title,
+            title: abbreviateMatchup(game.title),
             game_date: game.gameDate,
             status: "open",
             result: null,
             total_odds: null,
-            notes: `${game.window} · ${game.time}`,
+            notes: `${game.window} * ${game.time.replace(" PM", "")} * WEEK ${game.week}`,
             created_by: user.id,
             season: 2026,
             week: game.week,
