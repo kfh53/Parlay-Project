@@ -1,5 +1,6 @@
 import { promoteGame } from "@/app/actions/parlays";
 import { Parlay } from "@/lib/types";
+import DeleteGameButton from "./DeleteGameButton";
 
 export default function UpcomingGameCard({ parlay }: { parlay: Parlay }) {
     return (
@@ -9,9 +10,12 @@ export default function UpcomingGameCard({ parlay }: { parlay: Parlay }) {
                     <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
                         {parlay.week ? `Week ${parlay.week}` : "Upcoming"}
                     </span>
-                    <span className="rounded-full border border-slate-600 bg-slate-800/70 px-2 py-0.5 text-xs font-semibold text-slate-300">
-                        Scheduled
-                    </span>
+                    <div className="flex items-start gap-1">
+                        <span className="mt-0.5 rounded-full border border-slate-600 bg-slate-800/70 px-2 py-0.5 text-xs font-semibold text-slate-300">
+                            Scheduled
+                        </span>
+                        <DeleteGameButton id={parlay.id} title={parlay.title} />
+                    </div>
                 </div>
 
                 <h3 className="mt-4 text-lg font-bold text-slate-100">{parlay.title}</h3>

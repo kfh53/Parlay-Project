@@ -3,6 +3,42 @@
 import { getSupabaseServerClient } from "@/lib/supabase-server";
 import { revalidatePath } from "next/cache";
 
+export async function deleteGame(formData: FormData) {
+    const id = formData.get("id")?.toString();
+    if (!id) throw new Error("Missing game id");
+
+    const supabase = await getSupabaseServerClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("User not authenticated");
+
+    const { data: game, error: gameError } = await supabase
+        .from("parlays")
+        .select("title, game_date")
+        .eq("id", id)
+        .single();
+
+    if (gameError) throw gameError;
+
+    const { error: dismissalError } = await supabase
+        .from("dismissed_games")
+        .upsert({
+            title: game.title,
+            game_date: game.game_date,
+            dismissed_by: user.id,
+            dismissed_at: new Date().toISOString()
+        });
+
+    if (dismissalError) throw dismissalError;
+
+    const { error } = await supabase
+        .from("parlays")
+        .delete()
+        .eq("id", id);
+
+    if (error) throw error;
+    revalidatePath("/dashboard");
+}
+
 export async function promoteGame(formData: FormData) {
     const id = formData.get("id")?.toString();
     if (!id) throw new Error("Missing game id");

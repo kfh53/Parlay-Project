@@ -6,6 +6,7 @@ import PickList from "./PickList";
 import AddPickForm from "./AddPickForm";
 import GameActions from "./GameActions";
 import TotalOddsForm from "./TotalOddsForm";
+import DeleteGameButton from "./DeleteGameButton";
 
 
 interface GameCardProps {
@@ -114,12 +115,15 @@ export default function GameCard({
 
                 </div>
 
-                {outcome && (
-                    <span className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-bold uppercase tracking-wider ${outcome.badge}`}>
-                        <span aria-hidden="true">{outcome.icon}</span>
-                        {outcome.label}
-                    </span>
-                )}
+                <div className="flex shrink-0 items-start gap-1">
+                    {outcome && (
+                        <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-bold uppercase tracking-wider ${outcome.badge}`}>
+                            <span aria-hidden="true">{outcome.icon}</span>
+                            {outcome.label}
+                        </span>
+                    )}
+                    <DeleteGameButton id={parlay.id} title={parlay.title} />
+                </div>
 
             </div>
 

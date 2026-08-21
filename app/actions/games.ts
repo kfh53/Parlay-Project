@@ -93,13 +93,25 @@ export async function ensurePrimeTimeGames() {
 
     if (!user) return;
 
-    const { data: existing, error: selectError } = await supabase
-        .from("parlays")
-        .select("id, title, game_date")
-        .eq("season", 2026);
+    const [existingResult, dismissedResult] = await Promise.all([
+        supabase
+            .from("parlays")
+            .select("id, title, game_date")
+            .eq("season", 2026),
+        supabase
+            .from("dismissed_games")
+            .select("title, game_date")
+    ]);
+
+    const { data: existing, error: selectError } = existingResult;
 
     if (selectError) {
         console.error("Unable to check the prime-time schedule:", selectError);
+        return;
+    }
+
+    if (dismissedResult.error) {
+        console.error("Unable to check dismissed schedule games:", dismissedResult.error);
         return;
     }
 
@@ -134,8 +146,14 @@ export async function ensurePrimeTimeGames() {
                 : [`${game.game_date}|${game.title}`];
         })
     );
+    const dismissedGames = new Set(
+        (dismissedResult.data ?? []).map(game => `${game.game_date}|${game.title}`)
+    );
     const missingGames = PRIME_TIME_GAMES_2026
-        .filter(game => !existingGames.has(`${game.gameDate}|${abbreviateMatchup(game.title)}`))
+        .filter(game => {
+            const key = `${game.gameDate}|${abbreviateMatchup(game.title)}`;
+            return !existingGames.has(key) && !dismissedGames.has(key);
+        })
         .map(game => ({
             title: abbreviateMatchup(game.title),
             game_date: game.gameDate,
