@@ -1,8 +1,11 @@
 import { getSupabaseServerClient } from "@/lib/supabase-server";
 import GameCard from "@/components/GameCard";
 import CreateGameForm from "@/components/CreateGameForm";
+import { ensurePrimeTimeGames } from "@/app/actions/games";
 
 export default async function Dashboard() {
+
+    await ensurePrimeTimeGames();
 
     const supabase = await getSupabaseServerClient();
 
@@ -81,36 +84,28 @@ export default async function Dashboard() {
 
 
 
-            {/* Add Game Form */}
-
-            <CreateGameForm />
-
-
-
-
             {/* OPEN GAMES */}
 
             <section className="space-y-4">
 
                 <div className="flex items-center justify-between gap-4">
-                <h2 className="text-2xl font-bold text-slate-100">
-                    Open Games
-                </h2>
+                <div>
+                    <h2 className="text-2xl font-bold text-slate-100">
+                        Open Games
+                    </h2>
+                    <p className="mt-1 text-sm text-slate-400">
+                        Announced 2026 prime-time games and custom matchups
+                    </p>
+                </div>
                 <span className="rounded-full bg-blue-950 px-3 py-1 text-sm font-semibold text-blue-300">
                     {openGames.length}
                 </span>
                 </div>
 
 
-                {openGames.length === 0 && (
-                    <p className="text-slate-500">
-                        No open games
-                    </p>
-                )}
+                    <div className="flex snap-x snap-mandatory items-start gap-5 overflow-x-auto pb-3 pr-4">
+                        <CreateGameForm />
 
-
-                {openGames.length > 0 && (
-                    <div className="flex snap-x snap-mandatory gap-5 overflow-x-auto pb-3 pr-4">
                         {openGames.map((parlay) => (
 
                             <GameCard
@@ -122,7 +117,6 @@ export default async function Dashboard() {
 
                         ))}
                     </div>
-                )}
 
 
             </section>

@@ -101,6 +101,13 @@ export default function GameCard({
                     {parlay.game_date}
                 </p>
 
+                {parlay.notes && (
+                    <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-blue-300">
+                        {parlay.notes}
+                        {parlay.week ? ` · Week ${parlay.week}` : ""}
+                    </p>
+                )}
+
 
                 <p className="mt-1 text-sm font-medium capitalize text-slate-300">
                     Status: {parlay.status}

@@ -23,6 +23,9 @@ export interface Parlay {
     status: string;
     created_by: string;
     total_odds?: number | null;
+    notes?: string | null;
+    season?: number | null;
+    week?: number | null;
 
     picks: Pick[];
 }
