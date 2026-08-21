@@ -5,9 +5,9 @@ import { Parlay, Profile } from "@/lib/types";
 import PickList from "./PickList";
 import AddPickForm from "./AddPickForm";
 import GameActions from "./GameActions";
-import TotalOddsForm from "./TotalOddsForm";
 import DeleteGameButton from "./DeleteGameButton";
 import LockPickButton from "./LockPickButton";
+import GameResultsForm from "./GameResultsForm";
 
 
 interface GameCardProps {
@@ -100,9 +100,13 @@ export default function GameCard({
                     {parlay.game_date}
                 </p>
 
-                {parlay.notes && (
-                    <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-blue-300">
-                        {parlay.notes}
+                <p className="mt-1 min-h-4 text-xs font-semibold uppercase tracking-wider text-blue-300">
+                    {parlay.notes ?? ""}
+                </p>
+
+                {hasTotalOdds && (
+                    <p className="mt-1 text-sm font-semibold text-slate-200">
+                        Total odds: {parlay.total_odds! > 0 ? "+" : ""}{parlay.total_odds}
                     </p>
                 )}
 
@@ -157,9 +161,6 @@ export default function GameCard({
                 profiles={profiles}
                 currentUserId={currentUserId}
                 showResults={parlay.status === "locked" || parlay.status === "complete"}
-                showResultForms={
-                    parlay.status === "locked" && isEnteringResults
-                }
                 showPickForms={
                     parlay.status === "open" &&
                     parlay.created_by === currentUserId &&
@@ -195,12 +196,6 @@ export default function GameCard({
 
             )}
 
-            {parlay.status === "locked" && parlay.created_by === currentUserId && (
-                <TotalOddsForm id={parlay.id} totalOdds={parlay.total_odds} />
-            )}
-
-
-
             <GameActions
                 status={parlay.status}
                 id={parlay.id}
@@ -210,6 +205,14 @@ export default function GameCard({
                 onManageAllPicks={() => setIsManagingAllPicks(true)}
                 onEnterResults={() => setIsEnteringResults(true)}
             />
+
+            {isEnteringResults && (
+                <GameResultsForm
+                    parlay={parlay}
+                    profiles={profiles}
+                    onClose={() => setIsEnteringResults(false)}
+                />
+            )}
 
 
         </article>

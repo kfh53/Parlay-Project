@@ -7,7 +7,6 @@ interface PickListProps {
     profiles: Profile[];
     currentUserId: string;
     showResults: boolean;
-    showResultForms: boolean;
     showPickForms: boolean;
 }
 
@@ -17,7 +16,6 @@ export default function PickList({
     profiles,
     currentUserId,
     showResults,
-    showResultForms,
     showPickForms
 }: PickListProps) {
 
@@ -41,8 +39,7 @@ export default function PickList({
                             profile.id === currentUserId
                         }
                         showResult={showResults}
-                        showResultForm={showResultForms}
-                        showResultColor={parlay.status === "complete"}
+                        showResultColor={parlay.status === "locked" || parlay.status === "complete"}
                         showPickForm={showPickForms}
                         parlayId={parlay.id}
                         gameTitle={parlay.title}

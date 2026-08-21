@@ -147,36 +147,3 @@ export async function completeGame(
 
     revalidatePath("/dashboard");
 }
-
-export async function updateParlayTotalOdds(formData: FormData) {
-    const id = formData.get("id")?.toString();
-    const totalOddsValue = formData.get("totalOdds")?.toString();
-    const totalOdds = Number.parseInt(totalOddsValue ?? "", 10);
-
-    if (!id || !Number.isInteger(totalOdds)) {
-        throw new Error("Enter total odds as a whole number");
-    }
-
-    const supabase = await getSupabaseServerClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error("User not authenticated");
-
-    const { data: parlay, error: parlayError } = await supabase
-        .from("parlays")
-        .select("status, created_by")
-        .eq("id", id)
-        .single();
-
-    if (parlayError) throw parlayError;
-    if (parlay.status !== "locked" || parlay.created_by !== user.id) {
-        throw new Error("Only the creator can set total odds for a locked game");
-    }
-
-    const { error } = await supabase
-        .from("parlays")
-        .update({ total_odds: totalOdds })
-        .eq("id", id);
-
-    if (error) throw error;
-    revalidatePath("/dashboard");
-}

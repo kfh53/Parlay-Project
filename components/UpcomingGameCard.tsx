@@ -20,11 +20,9 @@ export default function UpcomingGameCard({ parlay }: { parlay: Parlay }) {
 
                 <h3 className="mt-4 text-lg font-bold text-slate-100">{parlay.title}</h3>
                 <p className="mt-1 text-sm text-slate-400">{parlay.game_date}</p>
-                {parlay.notes && (
-                    <p className="mt-2 text-xs font-semibold uppercase tracking-wider text-blue-300">
-                        {parlay.notes}
-                    </p>
-                )}
+                <p className="mt-2 min-h-4 text-xs font-semibold uppercase tracking-wider text-blue-300">
+                    {parlay.notes ?? ""}
+                </p>
             </div>
 
             <form action={promoteGame} className="mt-5">

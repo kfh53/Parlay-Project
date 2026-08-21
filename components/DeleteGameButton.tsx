@@ -5,11 +5,20 @@ import { deleteGame } from "@/app/actions/parlays";
 
 export default function DeleteGameButton({ id, title }: { id: string; title: string }) {
     function confirmDelete(event: FormEvent<HTMLFormElement>) {
-        const shouldDelete = window.confirm(
+        const confirmedGame = window.confirm(
             `Delete ${title}? This will also remove every pick attached to this game.`
         );
 
-        if (!shouldDelete) event.preventDefault();
+        if (!confirmedGame) {
+            event.preventDefault();
+            return;
+        }
+
+        const confirmedPermanentDeletion = window.confirm(
+            "Are you absolutely sure? This deletion cannot be undone."
+        );
+
+        if (!confirmedPermanentDeletion) event.preventDefault();
     }
 
     return (

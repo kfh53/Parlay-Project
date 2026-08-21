@@ -1,5 +1,4 @@
 import { Pick, Profile } from "@/lib/types";
-import ResultsForm from "./ResultsForm";
 import AddPickForm from "./AddPickForm";
 
 interface PickRowProps {
@@ -7,7 +6,6 @@ interface PickRowProps {
     pick?: Pick;
     isCurrentUser: boolean;
     showResult: boolean;
-    showResultForm: boolean;
     showResultColor: boolean;
     showPickForm: boolean;
     parlayId: string;
@@ -19,7 +17,6 @@ export default function PickRow({
     pick,
     isCurrentUser,
     showResult,
-    showResultForm,
     showResultColor,
     showPickForm,
     parlayId,
@@ -93,7 +90,7 @@ export default function PickRow({
                 </span>
             </div>
 
-            {pick && showResult && !showResultForm && (
+            {pick && showResult && (
                 outcome ? (
                     <span className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-xs font-bold uppercase tracking-wide ${outcome.badge}`}>
                         <span aria-hidden="true">{outcome.icon}</span>
@@ -104,13 +101,6 @@ export default function PickRow({
                         Pending
                     </span>
                 )
-            )}
-
-            {pick && showResultForm && (
-                <ResultsForm
-                    pickId={pick.id}
-                    currentResult={pick.result}
-                />
             )}
 
             {showPickForm && !pick?.is_locked && (
