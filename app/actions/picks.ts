@@ -92,7 +92,7 @@ export async function savePick(formData: FormData) {
     // Check if this user already has a pick for this parlay
     const { data: existingPick, error: existingError } = await supabase
         .from("picks")
-        .select("id")
+        .select("id, is_locked")
         .eq("parlay_id", parlayId)
         .eq("user_id", targetUserId)
         .maybeSingle();
@@ -100,6 +100,10 @@ export async function savePick(formData: FormData) {
     if (existingError) {
         console.error("Error finding existing pick:", existingError);
         return { error: "Unable to check your existing pick. Please try again." } satisfies SavePickResult;
+    }
+
+    if (existingPick?.is_locked) {
+        return { error: "This pick has been locked and can no longer be edited." } satisfies SavePickResult;
     }
 
     if (existingPick) {
@@ -135,4 +139,60 @@ export async function savePick(formData: FormData) {
     // Refresh the dashboard so the updated pick appears immediately
     revalidatePath("/dashboard");
     return { success: true } satisfies SavePickResult;
+}
+
+export async function lockPick(formData: FormData) {
+    const pickId = formData.get("pickId")?.toString();
+    if (!pickId) throw new Error("Missing pick id");
+
+    const supabase = await getSupabaseServerClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("User not authenticated");
+
+    const { data: pick, error: pickError } = await supabase
+        .from("picks")
+        .select("id, parlay_id, user_id, is_locked, parlays!inner(status)")
+        .eq("id", pickId)
+        .single();
+
+    if (pickError) throw pickError;
+    if (pick.user_id !== user.id) throw new Error("You can only lock your own pick");
+    if (pick.is_locked) return;
+
+    const parlay = Array.isArray(pick.parlays) ? pick.parlays[0] : pick.parlays;
+    if (parlay?.status !== "open") throw new Error("This game is not accepting picks");
+
+    const { error: lockError } = await supabase
+        .from("picks")
+        .update({ is_locked: true })
+        .eq("id", pickId)
+        .eq("user_id", user.id);
+
+    if (lockError) throw lockError;
+
+    const [{ data: profiles, error: profilesError }, { data: picks, error: picksError }] = await Promise.all([
+        supabase.from("profiles").select("id"),
+        supabase.from("picks").select("user_id, is_locked").eq("parlay_id", pick.parlay_id)
+    ]);
+
+    if (profilesError) throw profilesError;
+    if (picksError) throw picksError;
+
+    const lockedUserIds = new Set(
+        (picks ?? []).filter(item => item.is_locked).map(item => item.user_id)
+    );
+    const everyPickIsLocked = Boolean(profiles?.length) &&
+        profiles.every(profile => lockedUserIds.has(profile.id));
+
+    if (everyPickIsLocked) {
+        const { error: gameLockError } = await supabase
+            .from("parlays")
+            .update({ status: "locked" })
+            .eq("id", pick.parlay_id)
+            .eq("status", "open");
+
+        if (gameLockError) throw gameLockError;
+    }
+
+    revalidatePath("/dashboard");
 }

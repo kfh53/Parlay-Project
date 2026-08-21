@@ -57,43 +57,6 @@ export async function promoteGame(formData: FormData) {
     revalidatePath("/dashboard");
 }
 
-export async function lockGame(
-    formData: FormData
-){
-
-    const supabase =
-        await getSupabaseServerClient();
-
-
-    const id =
-        formData.get("id")?.toString();
-
-
-    if(!id){
-        throw new Error("Missing game id");
-    }
-
-
-    const {error} =
-        await supabase
-            .from("parlays")
-            .update({
-                status:"locked"
-            })
-            .eq(
-                "id",
-                id
-            );
-
-
-    if(error){
-        throw error;
-    }
-
-
-    revalidatePath("/dashboard");
-}
-
 export async function completeGame(
     formData: FormData
 ) {

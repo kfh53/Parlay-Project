@@ -26,6 +26,7 @@ export default async function Dashboard() {
                         bet_type,
                         team_name,
                         odds,
+                        is_locked,
                         result
                     )
                 `)

@@ -76,6 +76,13 @@ export default function PickRow({
                             (You)
                         </span>
                     )}
+
+                    {pick?.is_locked && (
+                        <span className="ml-2 inline-flex items-center gap-1 rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 align-middle text-[0.65rem] font-bold uppercase tracking-wide text-amber-200">
+                            <span aria-hidden="true">●</span>
+                            Locked
+                        </span>
+                    )}
                 </span>
 
                 <span className="text-right text-slate-200">
@@ -106,7 +113,7 @@ export default function PickRow({
                 />
             )}
 
-            {showPickForm && (
+            {showPickForm && !pick?.is_locked && (
                 <AddPickForm
                     parlayId={parlayId}
                     gameTitle={gameTitle}

@@ -7,6 +7,7 @@ import AddPickForm from "./AddPickForm";
 import GameActions from "./GameActions";
 import TotalOddsForm from "./TotalOddsForm";
 import DeleteGameButton from "./DeleteGameButton";
+import LockPickButton from "./LockPickButton";
 
 
 interface GameCardProps {
@@ -30,10 +31,6 @@ export default function GameCard({
         pick => pick.user_id === currentUserId
     );
 
-    const missingPickNames = profiles
-        .filter(profile => !parlay.picks.some(pick => pick.user_id === profile.id))
-        .map(profile => profile.display_name);
-
     const hasResolvedResults =
         parlay.status === "complete" &&
         parlay.picks.length > 0 &&
@@ -52,6 +49,7 @@ export default function GameCard({
         parlay.picks.length > 0 &&
         parlay.picks.every(pick => Boolean(pick.result));
     const hasTotalOdds = parlay.total_odds !== null && parlay.total_odds !== undefined;
+    const lockedPickCount = parlay.picks.filter(pick => pick.is_locked).length;
     const completionMessage = !hasAllResults && !hasTotalOdds
         ? "Enter all pick results and total odds before completing."
         : !hasAllResults
@@ -131,6 +129,27 @@ export default function GameCard({
 
             <hr className="border-slate-700" />
 
+            {parlay.status === "open" && (
+                <div className="space-y-2" aria-label={`${lockedPickCount} of ${profiles.length} picks locked`}>
+                    <div className="flex items-center justify-between text-xs font-medium">
+                        <span className="text-slate-400">Locked picks</span>
+                        <span className="text-slate-300">{lockedPickCount} of {profiles.length}</span>
+                    </div>
+                    <div className="grid gap-1" style={{ gridTemplateColumns: `repeat(${Math.max(profiles.length, 1)}, minmax(0, 1fr))` }}>
+                        {profiles.map(profile => {
+                            const isLocked = parlay.picks.some(pick => pick.user_id === profile.id && pick.is_locked);
+                            return (
+                                <span
+                                    key={profile.id}
+                                    title={`${profile.display_name}: ${isLocked ? "Locked" : "Not locked"}`}
+                                    className={`h-1.5 rounded-full ${isLocked ? "bg-amber-400" : "bg-slate-700"}`}
+                                />
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
+
 
 
             <PickList
@@ -152,11 +171,21 @@ export default function GameCard({
 
             {parlay.status === "open" ? (
 
-                <AddPickForm
-                    parlayId={parlay.id}
-                    gameTitle={parlay.title}
-                    existingPick={myPick}
-                />
+                myPick?.is_locked ? (
+                    <div className="flex items-center gap-2 rounded-lg border border-amber-500/25 bg-amber-500/10 px-3 py-2.5 text-sm font-semibold text-amber-200">
+                        <span aria-hidden="true">●</span>
+                        Your pick is locked
+                    </div>
+                ) : (
+                    <div className="flex flex-wrap gap-2">
+                        <AddPickForm
+                            parlayId={parlay.id}
+                            gameTitle={parlay.title}
+                            existingPick={myPick}
+                        />
+                        {myPick && <LockPickButton pickId={myPick.id} />}
+                    </div>
+                )
 
             ) : (
 
@@ -176,7 +205,6 @@ export default function GameCard({
                 status={parlay.status}
                 id={parlay.id}
                 canManageResults={parlay.created_by === currentUserId}
-                missingPickNames={missingPickNames}
                 canComplete={hasAllResults && hasTotalOdds}
                 completionMessage={completionMessage}
                 onManageAllPicks={() => setIsManagingAllPicks(true)}

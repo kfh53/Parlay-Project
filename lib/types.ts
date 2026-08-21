@@ -11,6 +11,7 @@ export interface Pick {
     bet_type?: string | null;
     team_name?: string | null;
     odds: number;
+    is_locked?: boolean;
 
     result?: string;
     notes?: string;

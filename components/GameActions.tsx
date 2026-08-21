@@ -1,14 +1,12 @@
 "use client";
 
-import type { FormEvent } from "react";
-import { completeGame, lockGame } from "@/app/actions/parlays";
+import { completeGame } from "@/app/actions/parlays";
 
 
 interface GameActionsProps {
     status: string;
     id: string;
     canManageResults: boolean;
-    missingPickNames: string[];
     canComplete: boolean;
     completionMessage?: string;
     onManageAllPicks: () => void;
@@ -20,28 +18,11 @@ export default function GameActions({
     status,
     id,
     canManageResults,
-    missingPickNames,
     canComplete,
     completionMessage,
     onManageAllPicks,
     onEnterResults
 }: GameActionsProps) {
-
-    function confirmLock(event: FormEvent<HTMLFormElement>) {
-        if (missingPickNames.length === 0) {
-            return;
-        }
-
-        const people = missingPickNames.join(", ");
-        const shouldLock = window.confirm(
-            `This game is still missing picks from ${people}. Lock it anyway?`
-        );
-
-        if (!shouldLock) {
-            event.preventDefault();
-        }
-    }
-
 
     return (
         <div className="flex flex-wrap gap-2">
@@ -50,28 +31,6 @@ export default function GameActions({
             {status === "open" && (
 
                 <>
-
-                <form action={lockGame} onSubmit={confirmLock}>
-
-                    <input
-                        type="hidden"
-                        name="id"
-                        value={id}
-                    />
-
-                    <button
-                        className="
-                            bg-yellow-500
-                            text-white
-                            rounded
-                            px-4
-                            py-2
-                        "
-                    >
-                        Lock Game
-                    </button>
-
-                </form>
 
                 {canManageResults && (
                     <button
