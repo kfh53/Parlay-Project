@@ -15,19 +15,23 @@ export type SavePickResult = { error?: string; success?: true };
 export async function savePick(formData: FormData) {
     const parlayId = formData.get("parlayId")?.toString();
     const selection = formData.get("selection")?.toString().trim();
-    const oddsString = formData.get("odds")?.toString();
+    const oddsString = formData.get("odds")?.toString().trim();
     const betTypeValue = formData.get("betType")?.toString().trim() ?? "";
     const playerNameValue = formData.get("playerName")?.toString().trim() ?? "";
     const teamNameValue = formData.get("teamName")?.toString().trim().toUpperCase() ?? "";
     const requestedTargetUserId = formData.get("targetUserId")?.toString();
-    const odds = Number.parseInt(oddsString ?? "", 10);
+    const odds = Number(oddsString);
 
     if (!parlayId || !selection || !oddsString) {
         return { error: "Enter a pick and its odds." } satisfies SavePickResult;
     }
 
-    if (!Number.isInteger(odds)) {
-        return { error: "Odds must be a whole number." } satisfies SavePickResult;
+    if (!/^[+-]?\d+$/.test(oddsString) || !Number.isSafeInteger(odds)) {
+        return { error: "Odds must be a whole number, optionally starting with + or -." } satisfies SavePickResult;
+    }
+
+    if (odds < -2147483648 || odds > 2147483647) {
+        return { error: "Odds are outside the supported range." } satisfies SavePickResult;
     }
 
     if (!isBetType(betTypeValue)) {

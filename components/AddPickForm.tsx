@@ -29,6 +29,7 @@ export default function AddPickForm({
     const [error, setError] = useState("");
     const [isSaving, setIsSaving] = useState(false);
     const [betType, setBetType] = useState(existingPick?.bet_type ?? "");
+    const [odds, setOdds] = useState(existingPick?.odds?.toString() ?? "");
     const dialogRef = useRef<HTMLDivElement>(null);
     const fieldId = targetUserId ? `${parlayId}-${targetUserId}` : parlayId;
     const teams = matchupTeams(gameTitle);
@@ -250,13 +251,41 @@ export default function AddPickForm({
                     Odds
                 </label>
 
-                <input
-                    id={`odds-${fieldId}`}
-                    type="number"
-                    name="odds"
-                    defaultValue={existingPick?.odds}
-                    className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                />
+                <div className="flex gap-2">
+                    <div className="flex overflow-hidden rounded-md border border-slate-300" aria-label="Odds sign">
+                        {(["+", "-"] as const).map(sign => (
+                            <button
+                                key={sign}
+                                type="button"
+                                onClick={() => setOdds(`${sign}${odds.replace(/^[+-]/, "")}`)}
+                                aria-pressed={odds.startsWith(sign)}
+                                className={`min-w-11 px-3 py-2 font-bold ${
+                                    odds.startsWith(sign)
+                                        ? "bg-blue-600 text-white"
+                                        : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                                }`}
+                            >
+                                {sign}
+                            </button>
+                        ))}
+                    </div>
+                    <input
+                        id={`odds-${fieldId}`}
+                        type="text"
+                        inputMode="numeric"
+                        name="odds"
+                        value={odds}
+                        onChange={event => setOdds(event.target.value)}
+                        required
+                        maxLength={11}
+                        pattern="[+-]?[0-9]+"
+                        placeholder="+110 or -125"
+                        title="Enter whole-number odds, optionally starting with + or -"
+                        autoComplete="off"
+                        className="min-w-0 flex-1 rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    />
+                </div>
+                <p className="text-xs text-slate-500">Choose + or −, then enter the whole-number odds.</p>
             </div>
 
             <div className="space-x-2">

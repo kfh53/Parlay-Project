@@ -9,11 +9,15 @@ export type SaveGameResultsResult = { error?: string; success?: true };
 
 export async function saveGameResults(formData: FormData) {
     const parlayId = formData.get("parlayId")?.toString();
-    const totalOdds = Number.parseInt(formData.get("totalOdds")?.toString() ?? "", 10);
+    const totalOddsString = formData.get("totalOdds")?.toString().trim() ?? "";
+    const totalOdds = Number(totalOddsString);
 
     if (!parlayId) return { error: "Missing game information." } satisfies SaveGameResultsResult;
-    if (!Number.isInteger(totalOdds)) {
-        return { error: "Enter total odds as a whole number." } satisfies SaveGameResultsResult;
+    if (!/^[+-]?\d+$/.test(totalOddsString) || !Number.isSafeInteger(totalOdds)) {
+        return { error: "Total odds must be a whole number, optionally starting with + or -." } satisfies SaveGameResultsResult;
+    }
+    if (totalOdds < -2147483648 || totalOdds > 2147483647) {
+        return { error: "Total odds are outside the supported range." } satisfies SaveGameResultsResult;
     }
 
     const supabase = await getSupabaseServerClient();

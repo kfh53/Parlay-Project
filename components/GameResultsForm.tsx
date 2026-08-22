@@ -16,6 +16,7 @@ export default function GameResultsForm({
 }) {
     const [error, setError] = useState("");
     const [isSaving, setIsSaving] = useState(false);
+    const [totalOdds, setTotalOdds] = useState(parlay.total_odds?.toString() ?? "");
     const dialogRef = useRef<HTMLDivElement>(null);
     const router = useRouter();
 
@@ -106,15 +107,41 @@ export default function GameResultsForm({
 
                     <div className="space-y-1.5 border-t border-slate-700 pt-4">
                         <label htmlFor={`total-odds-${parlay.id}`} className="block text-sm font-semibold text-slate-200">Total odds</label>
-                        <input
-                            id={`total-odds-${parlay.id}`}
-                            name="totalOdds"
-                            type="number"
-                            defaultValue={parlay.total_odds ?? ""}
-                            placeholder="e.g. +250"
-                            required
-                            className="w-full rounded-md border border-slate-600 bg-slate-950 px-3 py-2.5 text-slate-100 outline-none placeholder:text-slate-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                        />
+                        <div className="flex gap-2">
+                            <div className="flex overflow-hidden rounded-md border border-slate-600" aria-label="Total odds sign">
+                                {(["+", "-"] as const).map(sign => (
+                                    <button
+                                        key={sign}
+                                        type="button"
+                                        onClick={() => setTotalOdds(`${sign}${totalOdds.replace(/^[+-]/, "")}`)}
+                                        aria-pressed={totalOdds.startsWith(sign)}
+                                        className={`min-w-11 px-3 py-2.5 font-bold ${
+                                            totalOdds.startsWith(sign)
+                                                ? "bg-blue-600 text-white"
+                                                : "bg-slate-800 text-slate-200 hover:bg-slate-700"
+                                        }`}
+                                    >
+                                        {sign}
+                                    </button>
+                                ))}
+                            </div>
+                            <input
+                                id={`total-odds-${parlay.id}`}
+                                name="totalOdds"
+                                type="text"
+                                inputMode="numeric"
+                                value={totalOdds}
+                                onChange={event => setTotalOdds(event.target.value)}
+                                placeholder="+250 or -125"
+                                required
+                                maxLength={11}
+                                pattern="[+-]?[0-9]+"
+                                title="Enter whole-number odds, optionally starting with + or -"
+                                autoComplete="off"
+                                className="min-w-0 flex-1 rounded-md border border-slate-600 bg-slate-950 px-3 py-2.5 text-slate-100 outline-none placeholder:text-slate-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                            />
+                        </div>
+                        <p className="text-xs text-slate-400">Choose + or −, then enter the whole-number odds.</p>
                     </div>
 
                     {error && <p className="rounded-md border border-red-800 bg-red-950 px-3 py-2 text-sm font-medium text-red-300" role="alert">{error}</p>}
