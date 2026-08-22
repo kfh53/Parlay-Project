@@ -24,7 +24,7 @@ export default function GameCard({
 }: GameCardProps) {
 
     const [isEnteringResults, setIsEnteringResults] = useState(false);
-    const [isManagingAllPicks, setIsManagingAllPicks] = useState(false);
+    // const [isManagingAllPicks, setIsManagingAllPicks] = useState(false);
 
 
     const myPick = parlay.picks.find(
@@ -161,11 +161,8 @@ export default function GameCard({
                 profiles={profiles}
                 currentUserId={currentUserId}
                 showResults={parlay.status === "locked" || parlay.status === "complete"}
-                showPickForms={
-                    parlay.status === "open" &&
-                    parlay.created_by === currentUserId &&
-                    isManagingAllPicks
-                }
+                // Manage All Picks is temporarily disabled.
+                showPickForms={false}
             />
 
 
@@ -202,7 +199,7 @@ export default function GameCard({
                 canManageResults={parlay.created_by === currentUserId}
                 canComplete={hasAllResults && hasTotalOdds}
                 completionMessage={completionMessage}
-                onManageAllPicks={() => setIsManagingAllPicks(true)}
+                // onManageAllPicks={() => setIsManagingAllPicks(true)}
                 onEnterResults={() => setIsEnteringResults(true)}
             />
 

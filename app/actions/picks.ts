@@ -19,7 +19,8 @@ export async function savePick(formData: FormData) {
     const betTypeValue = formData.get("betType")?.toString().trim() ?? "";
     const playerNameValue = formData.get("playerName")?.toString().trim() ?? "";
     const teamNameValue = formData.get("teamName")?.toString().trim().toUpperCase() ?? "";
-    const requestedTargetUserId = formData.get("targetUserId")?.toString();
+    // Manage All Picks is temporarily disabled; picks may only be saved for the signed-in user.
+    // const requestedTargetUserId = formData.get("targetUserId")?.toString();
     const odds = Number.parseInt(oddsString ?? "", 10);
 
     if (!parlayId || !selection || !oddsString) {
@@ -84,11 +85,12 @@ export async function savePick(formData: FormData) {
         return { error: "Your session has expired. Please sign in again." } satisfies SavePickResult;
     }
 
-    const targetUserId = requestedTargetUserId || user.id;
+    const targetUserId = user.id;
 
-    if (targetUserId !== user.id && parlay.created_by !== user.id) {
-        return { error: "Only the game creator can manage other users' picks." } satisfies SavePickResult;
-    }
+    // const targetUserId = requestedTargetUserId || user.id;
+    // if (targetUserId !== user.id && parlay.created_by !== user.id) {
+    //     return { error: "Only the game creator can manage other users' picks." } satisfies SavePickResult;
+    // }
     
     // Check if this user already has a pick for this parlay
     const { data: existingPick, error: existingError } = await supabase
@@ -158,7 +160,9 @@ export async function lockPick(formData: FormData) {
 
     if (pickError) throw pickError;
     const parlay = Array.isArray(pick.parlays) ? pick.parlays[0] : pick.parlays;
-    const canLockPick = pick.user_id === user.id || parlay?.created_by === user.id;
+    // Manage All Picks is temporarily disabled; users may only lock their own pick.
+    const canLockPick = pick.user_id === user.id;
+    // const canLockPick = pick.user_id === user.id || parlay?.created_by === user.id;
     if (!canLockPick) throw new Error("You do not have permission to lock this pick");
     if (pick.is_locked) return;
     if (parlay?.status !== "open") throw new Error("This game is not accepting picks");

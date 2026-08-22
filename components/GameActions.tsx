@@ -9,7 +9,7 @@ interface GameActionsProps {
     canManageResults: boolean;
     canComplete: boolean;
     completionMessage?: string;
-    onManageAllPicks: () => void;
+    // onManageAllPicks: () => void;
     onEnterResults: () => void;
 }
 
@@ -20,7 +20,7 @@ export default function GameActions({
     canManageResults,
     canComplete,
     completionMessage,
-    onManageAllPicks,
+    // onManageAllPicks,
     onEnterResults
 }: GameActionsProps) {
 
@@ -28,23 +28,16 @@ export default function GameActions({
         <div className="flex flex-wrap gap-2">
 
 
-            {status === "open" && (
-
-                <>
-
-                {canManageResults && (
-                    <button
-                        type="button"
-                        onClick={onManageAllPicks}
-                        className="rounded bg-slate-700 px-4 py-2 text-white"
-                    >
-                        Manage All Picks
-                    </button>
-                )}
-
-                </>
-
-            )}
+            {/* Manage All Picks is temporarily disabled while each user manages their own pick.
+            {status === "open" && canManageResults && (
+                <button
+                    type="button"
+                    onClick={onManageAllPicks}
+                    className="rounded bg-slate-700 px-4 py-2 text-white"
+                >
+                    Manage All Picks
+                </button>
+            )} */}
 
 
 
