@@ -2,8 +2,7 @@ import "server-only";
 
 import { getSupabaseAdminClient } from "@/lib/supabase-admin";
 
-// Temporary delivery restriction while locked-game notifications are tested.
-// const ALLOWED_TEST_RECIPIENT = "kyle.f.harris53@gmail.com";
+const LOCK_NOTIFICATION_RECIPIENT = "kyle.f.harris53@gmail.com";
 
 type LockedPick = {
     id: string;
@@ -94,8 +93,7 @@ export async function sendGameLockedEmails(parlayId: string) {
             return;
         }
 
-        // Temporary recipient restriction removed so every participant receives the email.
-        // if (email.toLowerCase() !== ALLOWED_TEST_RECIPIENT) return;
+        if (email.toLowerCase() !== LOCK_NOTIFICATION_RECIPIENT) return;
 
         const { data: existingNotification } = await supabase
             .from("game_notifications")
