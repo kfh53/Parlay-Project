@@ -1,6 +1,7 @@
 "use server";
 
 import { getSupabaseServerClient } from "@/lib/supabase-server";
+import { getSupabaseAdminClient } from "@/lib/supabase-admin";
 import { revalidatePath } from "next/cache";
 
 export async function deleteGame(formData: FormData) {
@@ -76,9 +77,20 @@ export async function completeGame(
         throw new Error("User not authenticated");
     }
 
-    const { data: parlay, error: parlayError } = await supabase
+    const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("id", user.id)
+        .maybeSingle();
+
+    if (profileError || !profile) {
+        throw new Error("Only game participants can complete games");
+    }
+
+    const admin = getSupabaseAdminClient();
+    const { data: parlay, error: parlayError } = await admin
         .from("parlays")
-        .select("status, created_by, total_odds")
+        .select("status, total_odds")
         .eq("id", id)
         .single();
 
@@ -90,15 +102,11 @@ export async function completeGame(
         throw new Error("Only locked games can be completed");
     }
 
-    if (parlay.created_by !== user.id) {
-        throw new Error("Only the game creator can complete this game");
-    }
-
     if (parlay.total_odds === null) {
         throw new Error("Enter total odds before completing the game");
     }
 
-    const { data: picks, error: picksError } = await supabase
+    const { data: picks, error: picksError } = await admin
         .from("picks")
         .select("id, result")
         .eq("parlay_id", id);
@@ -124,7 +132,7 @@ export async function completeGame(
     // leave a stale parlay killer on another pick.
     const killerUpdates = await Promise.all(
         picks.map(pick =>
-            supabase
+            admin
                 .from("picks")
                 .update({ parlay_killer: pick.id === killerPickId })
                 .eq("id", pick.id)
@@ -136,7 +144,7 @@ export async function completeGame(
         throw killerUpdateError;
     }
 
-    const { error } = await supabase
+    const { error } = await admin
         .from("parlays")
         .update({ status: "complete", result })
         .eq("id", id);

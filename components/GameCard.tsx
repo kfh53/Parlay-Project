@@ -196,7 +196,7 @@ export default function GameCard({
             <GameActions
                 status={parlay.status}
                 id={parlay.id}
-                canManageResults={parlay.created_by === currentUserId}
+                canManageResults={true}
                 canComplete={hasAllResults && hasTotalOdds}
                 completionMessage={completionMessage}
                 // onManageAllPicks={() => setIsManagingAllPicks(true)}
