@@ -48,6 +48,15 @@ export async function savePick(formData: FormData) {
     }
 
     const supabase = await getSupabaseServerClient();
+    const {
+        data: { user },
+        error: userError
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+        return { error: "Your session has expired. Please sign in again." } satisfies SavePickResult;
+    }
+
     const { data: parlay, error: parlayError } =
         await supabase
             .from("parlays")
@@ -76,14 +85,6 @@ export async function savePick(formData: FormData) {
         player_name: betTypeNeedsPlayer(betTypeValue) ? playerNameValue : null,
         team_name: betTypeNeedsTeam(betTypeValue) ? teamNameValue : null
     };
-
-    const {
-        data: { user }
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-        return { error: "Your session has expired. Please sign in again." } satisfies SavePickResult;
-    }
 
     const targetUserId = user.id;
 

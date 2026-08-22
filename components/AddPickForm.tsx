@@ -58,15 +58,23 @@ export default function AddPickForm({
         event.preventDefault();
         setError("");
         setIsSaving(true);
-        const result = await savePick(new FormData(event.currentTarget));
-        setIsSaving(false);
+        const formData = new FormData(event.currentTarget);
 
-        if (result?.error) {
-            setError(result.error);
-            return;
+        try {
+            const result = await savePick(formData);
+
+            if (result?.error) {
+                setError(result.error);
+                return;
+            }
+
+            setOpen(false);
+        } catch (submitError) {
+            console.error("Unable to save pick:", submitError);
+            setError("Unable to save your pick. Refresh the page, sign in again, and retry.");
+        } finally {
+            setIsSaving(false);
         }
-
-        setOpen(false);
     }
 
 

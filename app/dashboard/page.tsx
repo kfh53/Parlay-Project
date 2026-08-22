@@ -3,12 +3,18 @@ import GameCard from "@/components/GameCard";
 import CreateGameForm from "@/components/CreateGameForm";
 import { ensurePrimeTimeGames } from "@/app/actions/games";
 import UpcomingGameCard from "@/components/UpcomingGameCard";
+import { redirect } from "next/navigation";
 
 export default async function Dashboard() {
+    const supabase = await getSupabaseServerClient();
+    const {
+        data: { user },
+        error: userError
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) redirect("/login");
 
     await ensurePrimeTimeGames();
-
-    const supabase = await getSupabaseServerClient();
 
 
     const [{ data: parlays, error }, { data: profiles }] =
@@ -62,12 +68,6 @@ export default async function Dashboard() {
         ?.filter(p => p.status === "complete")
         .sort((a, b) => b.game_date.localeCompare(a.game_date)) ?? [];
 
-    const {
-        data: { user }
-    } = await supabase.auth.getUser();
-
-
-
     return (
 
         <main className="space-y-10">
@@ -99,7 +99,7 @@ export default async function Dashboard() {
                                 key={parlay.id}
                                 parlay={parlay}
                                 profiles={profiles ?? []}
-                                currentUserId={user?.id ?? ""}
+                                currentUserId={user.id}
                             />
 
                         ))}
@@ -169,7 +169,7 @@ export default async function Dashboard() {
                                 key={parlay.id}
                                 parlay={parlay}
                                 profiles={profiles ?? []}
-                                currentUserId={user?.id ?? ""}
+                                currentUserId={user.id}
                             />
 
                         ))}
