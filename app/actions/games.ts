@@ -1,8 +1,9 @@
 "use server";
 
 import { getSupabaseServerClient } from "@/lib/supabase-server";
-import { getFootballMetadata } from "@/lib/football-calendar";
+import { FootballStage, getFootballMetadata } from "@/lib/football-calendar";
 import { abbreviateMatchup, PRIME_TIME_GAMES_2026 } from "@/lib/prime-time-schedule";
+import { getPrimetimeType } from "@/lib/primetime-type";
 import { revalidatePath } from "next/cache";
 
 function optionalInteger(value: FormDataEntryValue | null, label: string) {
@@ -45,6 +46,7 @@ export async function createGame(formData: FormData) {
     }
 
     const footballMetadata = getFootballMetadata(gameDate);
+    const resolvedStage = (stage as FootballStage | null) ?? footballMetadata.stage;
 
 
     const {
@@ -74,7 +76,8 @@ export async function createGame(formData: FormData) {
                 created_by: user.id,
                 season: season ?? footballMetadata.season,
                 week: week ?? footballMetadata.week,
-                stage: stage ?? footballMetadata.stage
+                stage: resolvedStage,
+                primetime_type: getPrimetimeType(gameDate, resolvedStage)
             });
 
 
@@ -129,7 +132,8 @@ export async function ensurePrimeTimeGames() {
             .from("parlays")
             .update({
                 title: abbreviateMatchup(game.title),
-                notes: `${game.window} * ${game.time.replace(" PM", "")} * WEEK ${game.week}`
+                notes: `${game.window} * ${game.time.replace(" PM", "")} * WEEK ${game.week}`,
+                primetime_type: getPrimetimeType(game.gameDate, "regular")
             })
             .eq("id", legacy.id);
 
@@ -164,7 +168,8 @@ export async function ensurePrimeTimeGames() {
             created_by: user.id,
             season: 2026,
             week: game.week,
-            stage: "regular"
+            stage: "regular",
+            primetime_type: getPrimetimeType(game.gameDate, "regular")
         }));
 
     if (!missingGames.length) return;

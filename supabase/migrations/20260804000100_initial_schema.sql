@@ -21,7 +21,8 @@ create table public.parlays (
     created_by uuid references auth.users(id),
     season integer,
     week integer,
-    stage text
+    stage text,
+    primetime_type text not null
 );
 
 create table public.picks (
@@ -76,6 +77,10 @@ alter table public.parlays
             'super_bowl'
         )
     );
+
+alter table public.parlays
+    add constraint parlays_primetime_type_check
+    check (primetime_type in ('MNF', 'TNF', 'SNF', 'special'));
 
 create index picks_user_id_idx
     on public.picks(user_id);

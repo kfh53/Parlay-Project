@@ -27,6 +27,7 @@ export interface Parlay {
     notes?: string | null;
     season?: number | null;
     week?: number | null;
+    primetime_type?: "MNF" | "TNF" | "SNF" | "special";
 
     picks: Pick[];
 }
