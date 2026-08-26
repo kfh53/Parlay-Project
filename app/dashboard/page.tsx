@@ -92,7 +92,7 @@ export default async function Dashboard() {
                         <p className="mt-1 text-sm text-slate-500">Move an upcoming matchup here when you are ready to make picks.</p>
                     </div>
                 ) : (
-                    <div className="flex snap-x snap-mandatory items-start gap-5 overflow-x-auto pb-3 pr-4">
+                    <div className="flex snap-x snap-mandatory gap-5 overflow-x-auto pb-3 pr-4">
                         {currentGames.map((parlay) => (
 
                             <GameCard
@@ -162,7 +162,7 @@ export default async function Dashboard() {
 
 
                 {completedGames.length > 0 && (
-                    <div className="flex snap-x snap-mandatory items-start gap-5 overflow-x-auto pb-3 pr-4">
+                    <div className="flex snap-x snap-mandatory gap-5 overflow-x-auto pb-3 pr-4">
                         {completedGames.map((parlay) => (
 
                             <GameCard
