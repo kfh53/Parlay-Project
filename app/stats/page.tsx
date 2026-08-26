@@ -32,6 +32,7 @@ export default async function StatsPage() {
                     picks (
                         id,
                         user_id,
+                        odds,
                         result,
                         parlay_killer
                     )
@@ -100,23 +101,65 @@ export default async function StatsPage() {
     const seasons = [...new Set(chronologicalParlays.map(parlay => getSeasonYear(parlay.game_date)))]
         .sort((a, b) => b.localeCompare(a));
     function buildStatsDataset(games: typeof chronologicalParlays, value: string, label: string): StatsDataset {
-        const stats = new Map<string, StatsDataset["playerStats"][number]>();
+        type PlayerAccumulator = StatsDataset["playerStats"][number] & {
+            oddsTotal: number;
+            winningOddsTotal: number;
+            impliedProbabilityTotal: number;
+            currentResult: "W" | "L" | "P" | null;
+            currentStreak: number;
+        };
+        const stats = new Map<string, PlayerAccumulator>();
         for (const parlay of games) {
             for (const pick of parlay.picks) {
                 const current = stats.get(pick.user_id) ?? {
                     id: pick.user_id, name: profileNames.get(pick.user_id) ?? "Unknown player",
-                    wins: 0, losses: 0, pushes: 0, parlayKillers: 0, total: 0, winRate: "0.00%"
+                    wins: 0, losses: 0, pushes: 0, parlayKillers: 0, total: 0, winRate: "0.00%",
+                    recentForm: "—", biggestWinStreak: 0, biggestLossStreak: 0,
+                    averageOdds: "—", averageWinningOdds: "—", impliedProbability: "—", edge: "—",
+                    oddsTotal: 0, winningOddsTotal: 0, impliedProbabilityTotal: 0,
+                    currentResult: null, currentStreak: 0
                 };
                 if (pick.result === "win") current.wins++;
                 if (pick.result === "loss") current.losses++;
                 if (pick.result === "push") current.pushes++;
                 if (pick.parlay_killer) current.parlayKillers++;
+
+                const result = pick.result === "win" ? "W" : pick.result === "loss" ? "L" : null;
+                if (result === null) {
+                    current.currentResult = null;
+                    current.currentStreak = 0;
+                    current.recentForm = "—";
+                } else {
+                    if (result === current.currentResult) current.currentStreak++;
+                    else {
+                        current.currentResult = result;
+                        current.currentStreak = 1;
+                    }
+                    current.recentForm = `${result}${current.currentStreak}`;
+                    if (result === "W") current.biggestWinStreak = Math.max(current.biggestWinStreak, current.currentStreak);
+                    if (result === "L") current.biggestLossStreak = Math.max(current.biggestLossStreak, current.currentStreak);
+                }
+
+                current.oddsTotal += pick.odds;
+                if (pick.result === "win") current.winningOddsTotal += pick.odds;
+                if (pick.result === "win" || pick.result === "loss") {
+                    current.impliedProbabilityTotal += americanOddsToProbability(pick.odds);
+                }
                 current.total = current.wins + current.losses + current.pushes;
                 current.winRate = formatWinRate(current.wins, current.wins + current.losses);
+                current.averageOdds = formatAmericanOdds(current.oddsTotal / current.total);
+                current.averageWinningOdds = current.wins
+                    ? formatAmericanOdds(current.winningOddsTotal / current.wins)
+                    : "—";
+                const decisions = current.wins + current.losses;
+                const impliedProbability = decisions ? current.impliedProbabilityTotal / decisions : 0;
+                current.impliedProbability = decisions ? formatPercent(impliedProbability) : "—";
+                const actualProbability = decisions ? current.wins / decisions : 0;
+                current.edge = decisions ? formatPercentagePointDelta(actualProbability - impliedProbability) : "—";
                 stats.set(pick.user_id, current);
             }
         }
-        const records = [...stats.values()].sort((a, b) =>
+        const records: StatsDataset["playerStats"] = [...stats.values()].sort((a, b) =>
             b.wins / (b.wins + b.losses) - a.wins / (a.wins + a.losses) || b.wins - a.wins || a.name.localeCompare(b.name)
         );
         const periodWins = games.filter(parlay => parlay.outcome === "win").length;
@@ -138,4 +181,24 @@ export default async function StatsPage() {
     ];
 
     return <StatsDashboard datasets={datasets} />;
+}
+
+function americanOddsToProbability(odds: number) {
+    if (odds > 0) return 100 / (odds + 100);
+    if (odds < 0) return -odds / (-odds + 100);
+    return 0;
+}
+
+function formatAmericanOdds(odds: number) {
+    const rounded = Math.round(odds);
+    return `${rounded > 0 ? "+" : ""}${rounded}`;
+}
+
+function formatPercent(value: number) {
+    return `${(value * 100).toFixed(2)}%`;
+}
+
+function formatPercentagePointDelta(value: number) {
+    const percentagePoints = value * 100;
+    return `${percentagePoints > 0 ? "+" : ""}${percentagePoints.toFixed(2)} pp`;
 }

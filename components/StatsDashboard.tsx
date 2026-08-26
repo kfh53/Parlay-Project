@@ -10,7 +10,11 @@ export type StatsDataset = {
     wins: number;
     losses: number;
     winRate: string;
-    playerStats: Array<{ id: string; name: string; wins: number; losses: number; pushes: number; parlayKillers: number; total: number; winRate: string }>;
+    playerStats: Array<{
+        id: string; name: string; wins: number; losses: number; pushes: number; parlayKillers: number;
+        total: number; winRate: string; recentForm: string; biggestWinStreak: number; biggestLossStreak: number;
+        averageOdds: string; averageWinningOdds: string; impliedProbability: string; edge: string;
+    }>;
     chartSeries: WinRateSeries[];
     dates: string[];
 };
@@ -18,7 +22,8 @@ export type StatsDataset = {
 export default function StatsDashboard({ datasets }: { datasets: StatsDataset[] }) {
     const [period, setPeriod] = useState("all");
     const stats = datasets.find(dataset => dataset.value === period) ?? datasets[0];
-    const headings = ["Player", "Parlays", "Wins", "Losses", "Pushes", "Parlay killers", "Win rate"];
+    const recordHeadings = ["Player", "Picks", "Wins", "Losses", "Pushes", "Parlay killers", "Win rate", "Recent form", "Best W streak", "Worst L streak"];
+    const oddsHeadings = ["Player", "Average odds", "Average winning odds", "Implied win probability", "Actual vs. implied"];
 
     return <main className="space-y-8">
         <div className="flex flex-wrap items-end justify-between gap-4">
@@ -42,11 +47,25 @@ export default function StatsDashboard({ datasets }: { datasets: StatsDataset[] 
             <div className="border-b border-slate-700 px-5 py-4"><h2 className="text-lg font-bold text-slate-100">Player parlay records</h2></div>
             {!stats.playerStats.length ? <p className="px-5 py-10 text-center text-slate-500">No completed parlays for this period.</p> :
                 <div className="overflow-x-auto"><table className="w-full min-w-[50rem] text-left text-sm">
-                    <thead className="bg-slate-800 text-xs uppercase tracking-wide text-slate-400"><tr>{headings.map(label => <th key={label} className="px-5 py-3 font-semibold">{label}</th>)}</tr></thead>
+                    <thead className="bg-slate-800 text-xs uppercase tracking-wide text-slate-400"><tr>{recordHeadings.map(label => <th key={label} className="whitespace-nowrap px-5 py-3 font-semibold">{label}</th>)}</tr></thead>
                     <tbody className="divide-y divide-slate-800 text-slate-300">{stats.playerStats.map(player => <tr key={player.id}>
                         <td className="px-5 py-4 font-semibold text-slate-100">{player.name}</td><td className="px-5 py-4">{player.total}</td>
                         <td className="px-5 py-4 text-emerald-300">{player.wins}</td><td className="px-5 py-4 text-red-300">{player.losses}</td>
                         <td className="px-5 py-4 text-amber-300">{player.pushes}</td><td className="px-5 py-4 text-red-300">{player.parlayKillers}</td><td className="px-5 py-4">{player.winRate}</td>
+                        <td className="px-5 py-4 font-semibold">{player.recentForm}</td><td className="px-5 py-4 text-emerald-300">{player.biggestWinStreak}</td><td className="px-5 py-4 text-red-300">{player.biggestLossStreak}</td>
+                    </tr>)}</tbody>
+                </table></div>}
+        </section>
+
+        <section className="overflow-hidden rounded-xl border border-slate-700 bg-slate-900 shadow-sm">
+            <div className="border-b border-slate-700 px-5 py-4"><h2 className="text-lg font-bold text-slate-100">Odds performance</h2><p className="mt-1 text-sm text-slate-400">Actual vs. implied is the player&apos;s win rate minus the average implied probability of their picks.</p></div>
+            {!stats.playerStats.length ? <p className="px-5 py-10 text-center text-slate-500">No completed picks for this period.</p> :
+                <div className="overflow-x-auto"><table className="w-full min-w-[48rem] text-left text-sm">
+                    <thead className="bg-slate-800 text-xs uppercase tracking-wide text-slate-400"><tr>{oddsHeadings.map(label => <th key={label} className="whitespace-nowrap px-5 py-3 font-semibold">{label}</th>)}</tr></thead>
+                    <tbody className="divide-y divide-slate-800 text-slate-300">{stats.playerStats.map(player => <tr key={player.id}>
+                        <td className="px-5 py-4 font-semibold text-slate-100">{player.name}</td><td className="px-5 py-4">{player.averageOdds}</td>
+                        <td className="px-5 py-4 text-emerald-300">{player.averageWinningOdds}</td><td className="px-5 py-4">{player.impliedProbability}</td>
+                        <td className="px-5 py-4 font-semibold text-blue-300">{player.edge}</td>
                     </tr>)}</tbody>
                 </table></div>}
         </section>
