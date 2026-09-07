@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import WinRateChart, { WinRateSeries } from "./WinRateChart";
+import type { calculateParlayProfit } from "@/lib/profit";
 
 export type StatsDataset = {
     value: string;
@@ -10,6 +11,7 @@ export type StatsDataset = {
     wins: number;
     losses: number;
     winRate: string;
+    profit: ReturnType<typeof calculateParlayProfit>;
     groupStats: {
         parlays: number;
         wins: number;
@@ -80,6 +82,19 @@ export default function StatsDashboard({ datasets }: { datasets: StatsDataset[] 
         </section>
 
         <section className="overflow-hidden rounded-xl border border-slate-700 bg-slate-900 shadow-sm">
+            <div className="border-b border-slate-700 px-5 py-4">
+                <h2 className="text-lg font-bold text-slate-100">Profit</h2>
+                <p className="mt-1 text-sm text-slate-400">Net profit with 1 unit staked per completed parlay. Wins use total parlay odds; losses are −1 unit and pushes are 0. Boosts apply only to winnings.</p>
+                {stats.profit.unpricedWins > 0 && <p className="mt-2 text-sm text-amber-300">Profit is unavailable until valid total odds are entered for {stats.profit.unpricedWins} winning {stats.profit.unpricedWins === 1 ? "parlay" : "parlays"}.</p>}
+            </div>
+            <div className="grid gap-px bg-slate-700 sm:grid-cols-3">
+                <ProfitMetric label="Standard odds" value={stats.profit.standard} />
+                <ProfitMetric label="25% odds boost" value={stats.profit.boost25} />
+                <ProfitMetric label="50% odds boost" value={stats.profit.boost50} />
+            </div>
+        </section>
+
+        <section className="overflow-hidden rounded-xl border border-slate-700 bg-slate-900 shadow-sm">
             <div className="border-b border-slate-700 px-5 py-4"><h2 className="text-lg font-bold text-slate-100">Player parlay records</h2></div>
             {!stats.playerStats.length ? <p className="px-5 py-10 text-center text-slate-500">No completed parlays for this period.</p> :
                 <div className="overflow-x-auto"><table className="w-full min-w-[50rem] text-left text-sm">
@@ -113,6 +128,13 @@ export default function StatsDashboard({ datasets }: { datasets: StatsDataset[] 
     </main>;
 }
 
+
+function ProfitMetric({ label, value }: { label: string; value: number | null }) {
+    const rounded = value === null ? null : Number(value.toFixed(2));
+    return <GroupMetric label={label}
+        value={rounded === null ? "Unavailable" : `${rounded > 0 ? "+" : ""}${rounded.toFixed(2)} units`}
+        tone={rounded === null || rounded === 0 ? "slate" : rounded > 0 ? "emerald" : "red"} />;
+}
 
 function GroupMetric({ label, value, tone = "slate" }: {
     label: string;

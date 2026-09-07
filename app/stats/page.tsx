@@ -2,6 +2,7 @@ import { getSupabaseServerClient } from "@/lib/supabase-server";
 import { WinRateSeries } from "@/components/WinRateChart";
 import StatsDashboard, { StatsDataset } from "@/components/StatsDashboard";
 import { americanOddsToProbability, formatAverageAmericanOdds } from "@/lib/odds";
+import { calculateParlayProfit } from "@/lib/profit";
 
 type ParlayOutcome = "win" | "loss" | "push";
 
@@ -268,6 +269,7 @@ export default async function StatsPage() {
         const periodLosses = games.filter(parlay => parlay.outcome === "loss").length;
         return {
             value, label, completedParlays: games.length, wins: periodWins, losses: periodLosses,
+            profit: calculateParlayProfit(games),
             winRate: formatWinRate(periodWins, periodWins + periodLosses), groupStats, playerStats: records,
             chartSeries: buildWinRateDataset(games), dates: games.map(parlay => parlay.game_date)
         };
