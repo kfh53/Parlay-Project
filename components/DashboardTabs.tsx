@@ -8,11 +8,12 @@ const tabs = [
     { href: "/stats", label: "Stats" }
 ];
 
-export default function DashboardTabs() {
+export default function DashboardTabs({ isGuest = false }: { isGuest?: boolean }) {
     const pathname = usePathname();
 
     return (
-        <nav aria-label="Primary navigation" className="flex gap-1">
+        <nav aria-label="Primary navigation" className="flex flex-wrap items-center gap-1">
+            {isGuest && <span className="px-2 text-xs font-semibold text-slate-400">Guest</span>}
             {tabs.map((tab) => {
                 const isActive = pathname === tab.href;
 
@@ -30,6 +31,7 @@ export default function DashboardTabs() {
                     </Link>
                 );
             })}
+            {isGuest && <Link href="/login" className="rounded-md px-3 py-2 text-sm font-semibold text-blue-300 hover:bg-slate-800">Sign in</Link>}
         </nav>
     );
 }

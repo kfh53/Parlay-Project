@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const PROTECTED_ROUTES = ["/dashboard", "/stats"];
+const PROTECTED_ROUTES = ["/picks/new", "/parlays/new"];
 
 export async function proxy(request: NextRequest) {
     // The cron endpoint authenticates its own bearer secret, without browser sessions.

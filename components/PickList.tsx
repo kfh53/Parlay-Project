@@ -5,7 +5,7 @@ import PickRow from "./PickRow";
 interface PickListProps {
     parlay: Parlay;
     profiles: Profile[];
-    currentUserId: string;
+    currentUserId: string | null;
     showResults: boolean;
     showPickForms: boolean;
 }

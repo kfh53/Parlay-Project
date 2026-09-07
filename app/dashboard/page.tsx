@@ -3,18 +3,14 @@ import GameCard from "@/components/GameCard";
 import CreateGameForm from "@/components/CreateGameForm";
 import { ensurePrimeTimeGames } from "@/app/actions/games";
 import UpcomingGameCard from "@/components/UpcomingGameCard";
-import { redirect } from "next/navigation";
 
 export default async function Dashboard() {
     const supabase = await getSupabaseServerClient();
     const {
-        data: { user },
-        error: userError
+        data: { user }
     } = await supabase.auth.getUser();
 
-    if (userError || !user) redirect("/login");
-
-    await ensurePrimeTimeGames();
+    if (user) await ensurePrimeTimeGames();
 
 
     const [{ data: parlays, error }, { data: profiles }] =
@@ -23,7 +19,8 @@ export default async function Dashboard() {
             supabase
                 .from("parlays")
                 .select(`
-                    *,
+                    id, title, game_date, starts_at, status, created_by,
+                    total_odds, notes, season, week, primetime_type,
                     picks (
                         id,
                         user_id,
@@ -36,6 +33,7 @@ export default async function Dashboard() {
                         result
                     )
                 `)
+                .in("status", user ? ["upcoming", "open", "locked", "complete"] : ["open", "locked"])
                 .order("game_date", { ascending: true }),
 
 
@@ -67,6 +65,17 @@ export default async function Dashboard() {
     const completedGames = parlays
         ?.filter(p => p.status === "complete")
         .sort((a, b) => b.game_date.localeCompare(a.game_date)) ?? [];
+
+    if (!user) {
+        return <main className="space-y-6">
+            <h1 className="text-2xl font-bold text-slate-100">Current Games</h1>
+            {error ? <p role="alert" className="text-red-300">Games could not be loaded. Please try again later.</p>
+                : currentGames.length ? <div className="flex snap-x snap-mandatory gap-5 overflow-x-auto pb-3 pr-4">
+                    {currentGames.map(parlay => <GameCard key={parlay.id} parlay={parlay}
+                        profiles={profiles ?? []} currentUserId={null} />)}
+                </div> : <p className="text-slate-400">No current games.</p>}
+        </main>;
+    }
 
     return (
 

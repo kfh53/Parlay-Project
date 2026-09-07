@@ -94,6 +94,7 @@ export default function LoginPage() {
                         {isSubmitting ? "Signing in…" : "Sign in"}
                     </button>
                 </form>
+                <Link href="/dashboard" className="mt-4 block w-full rounded-xl border border-slate-300 px-4 py-3 text-center font-semibold text-slate-700 hover:bg-slate-100">Continue as guest</Link>
             </section>
         </main>
     );

@@ -14,7 +14,7 @@ import GameStartTime from "./GameStartTime";
 interface GameCardProps {
     parlay: Parlay;
     profiles: Profile[];
-    currentUserId: string;
+    currentUserId: string | null;
 }
 
 
@@ -100,7 +100,7 @@ export default function GameCard({
                 <p className="mt-1 text-sm text-slate-400">
                     {parlay.game_date}
                 </p>
-                <GameStartTime parlay={parlay} />
+                <GameStartTime parlay={parlay} readOnly={!currentUserId} />
 
                 <p className="mt-1 min-h-4 text-xs font-semibold uppercase tracking-wider text-blue-300">
                     {parlay.notes ?? ""}
@@ -126,7 +126,7 @@ export default function GameCard({
                             {outcome.label}
                         </span>
                     )}
-                    <DeleteGameButton id={parlay.id} title={parlay.title} />
+                    {currentUserId && <DeleteGameButton id={parlay.id} title={parlay.title} />}
                 </div>
 
             </div>
@@ -164,6 +164,7 @@ export default function GameCard({
                 currentUserId={currentUserId}
                 showResults={parlay.status === "locked" || parlay.status === "complete"}
                 showPickForms={
+                    Boolean(currentUserId) &&
                     parlay.status === "open" &&
                     parlay.created_by === currentUserId &&
                     isManagingAllPicks
@@ -172,51 +173,53 @@ export default function GameCard({
 
 
 
-            {parlay.status === "open" ? (
+            {currentUserId && <>
+                {parlay.status === "open" ? (
 
-                myPick?.is_locked ? (
-                    <div className="flex items-center gap-2 rounded-lg border border-amber-500/25 bg-amber-500/10 px-3 py-2.5 text-sm font-semibold text-amber-200">
-                        <span aria-hidden="true">●</span>
-                        Your pick is locked
-                    </div>
+                    myPick?.is_locked ? (
+                        <div className="flex items-center gap-2 rounded-lg border border-amber-500/25 bg-amber-500/10 px-3 py-2.5 text-sm font-semibold text-amber-200">
+                            <span aria-hidden="true">●</span>
+                            Your pick is locked
+                        </div>
+                    ) : (
+                        <div className="flex flex-wrap gap-2">
+                            <AddPickForm
+                                parlayId={parlay.id}
+                                gameTitle={parlay.title}
+                                existingPick={myPick}
+                            />
+                            {myPick && <LockPickButton pickId={myPick.id} />}
+                        </div>
+                    )
+
                 ) : (
-                    <div className="flex flex-wrap gap-2">
-                        <AddPickForm
-                            parlayId={parlay.id}
-                            gameTitle={parlay.title}
-                            existingPick={myPick}
-                        />
-                        {myPick && <LockPickButton pickId={myPick.id} />}
+
+                    <div className="text-slate-400 italic">
+                        Picks are locked
                     </div>
-                )
 
-            ) : (
+                )}
 
-                <div className="text-slate-400 italic">
-                    Picks are locked
-                </div>
-
-            )}
-
-            <GameActions
-                status={parlay.status}
-                id={parlay.id}
-                canManageResults={true}
-                canComplete={hasAllResults && hasTotalOdds}
-                completionMessage={completionMessage}
-                onManageAllPicks={() => setIsManagingAllPicks(true)}
-                onEnterResults={() => setIsEnteringResults(true)}
-            />
-
-            {isEnteringResults && (
-                <GameResultsForm
-                    parlay={parlay}
-                    profiles={profiles}
-                    onClose={() => setIsEnteringResults(false)}
+                <GameActions
+                    status={parlay.status}
+                    id={parlay.id}
+                    canManageResults={true}
+                    canComplete={hasAllResults && hasTotalOdds}
+                    completionMessage={completionMessage}
+                    onManageAllPicks={() => setIsManagingAllPicks(true)}
+                    onEnterResults={() => setIsEnteringResults(true)}
                 />
-            )}
+
+                {isEnteringResults && (
+                    <GameResultsForm
+                        parlay={parlay}
+                        profiles={profiles}
+                        onClose={() => setIsEnteringResults(false)}
+                    />
+                )}
 
 
+            </>}
         </article>
 
     );

@@ -5,7 +5,7 @@ import { updateGameStartTime } from "@/app/actions/games";
 import { easternDateTime, formatKickoff } from "@/lib/game-time";
 import type { Parlay } from "@/lib/types";
 
-export default function GameStartTime({ parlay }: { parlay: Parlay }) {
+export default function GameStartTime({ parlay, readOnly = false }: { parlay: Parlay; readOnly?: boolean }) {
     const [editing, setEditing] = useState(false);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState("");
@@ -25,7 +25,7 @@ export default function GameStartTime({ parlay }: { parlay: Parlay }) {
     }
 
     return <div className="mt-2 text-sm text-slate-300">
-        {editing ? <form onSubmit={save} className="space-y-2">
+        {editing && !readOnly ? <form onSubmit={save} className="space-y-2">
             <input type="hidden" name="id" value={parlay.id} />
             <label htmlFor={`start-${parlay.id}`} className="block font-semibold">Start time (Eastern)</label>
             <input id={`start-${parlay.id}`} name="gameTime" type="time" required disabled={saving}
@@ -38,7 +38,7 @@ export default function GameStartTime({ parlay }: { parlay: Parlay }) {
             {error && <p role="alert" className="text-red-300">{error}</p>}
         </form> : <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
             <span>{parlay.starts_at ? `Kickoff: ${formatKickoff(parlay.starts_at)}` : "Start time not set"}</span>
-            {parlay.status !== "complete" && <button type="button" onClick={() => { setError(""); setEditing(true); }}
+            {!readOnly && parlay.status !== "complete" && <button type="button" onClick={() => { setError(""); setEditing(true); }}
                 aria-label={`${parlay.starts_at ? "Edit" : "Set"} start time for ${parlay.title}`}
                 className="font-semibold text-blue-300 hover:text-blue-200">{parlay.starts_at ? "Edit" : "Set time"}</button>}
         </div>}
