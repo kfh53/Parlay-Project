@@ -58,7 +58,7 @@ export default function StatsDashboard({ datasets }: { datasets: StatsDataset[] 
         </section>
 
         <section className="overflow-hidden rounded-xl border border-slate-700 bg-slate-900 shadow-sm">
-            <div className="border-b border-slate-700 px-5 py-4"><h2 className="text-lg font-bold text-slate-100">Odds performance</h2><p className="mt-1 text-sm text-slate-400">Voided and pushed legs are excluded. Average odds are calculated on the continuous decimal scale, then displayed as standard American odds. Actual vs. implied is the player&apos;s win rate minus the average implied probability of their decided picks.</p></div>
+            <div className="border-b border-slate-700 px-5 py-4"><h2 className="text-lg font-bold text-slate-100">Odds performance</h2><p className="mt-1 text-sm text-slate-400">Voided and pushed legs are excluded. Average odds are calculated by averaging implied probabilities, then converting the result to standard American odds. Actual vs. implied is the player&apos;s win rate minus the average implied probability of their decided picks.</p></div>
             {!stats.playerStats.length ? <p className="px-5 py-10 text-center text-slate-500">No completed picks for this period.</p> :
                 <div className="overflow-x-auto"><table className="w-full min-w-[48rem] text-left text-sm">
                     <thead className="bg-slate-800 text-xs uppercase tracking-wide text-slate-400"><tr>{oddsHeadings.map(label => <th key={label} className="whitespace-nowrap px-5 py-3 font-semibold">{label}</th>)}</tr></thead>

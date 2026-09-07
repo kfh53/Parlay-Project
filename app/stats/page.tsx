@@ -1,11 +1,7 @@
 import { getSupabaseServerClient } from "@/lib/supabase-server";
 import { WinRateSeries } from "@/components/WinRateChart";
 import StatsDashboard, { StatsDataset } from "@/components/StatsDashboard";
-import {
-    americanOddsToDecimal,
-    americanOddsToProbability,
-    formatAverageAmericanOdds
-} from "@/lib/odds";
+import { americanOddsToProbability, formatAverageAmericanOdds } from "@/lib/odds";
 
 type ParlayOutcome = "win" | "loss" | "push";
 
@@ -107,9 +103,7 @@ export default async function StatsPage() {
         .sort((a, b) => b.localeCompare(a));
     function buildStatsDataset(games: typeof chronologicalParlays, value: string, label: string): StatsDataset {
         type PlayerAccumulator = StatsDataset["playerStats"][number] & {
-            decimalOddsTotal: number;
-            validOddsCount: number;
-            winningDecimalOddsTotal: number;
+            winningProbabilityTotal: number;
             validWinningOddsCount: number;
             impliedProbabilityTotal: number;
             validDecisionOddsCount: number;
@@ -125,8 +119,7 @@ export default async function StatsPage() {
                     wins: 0, losses: 0, pushes: 0, parlayKillers: 0, total: 0, winRate: "0.00%",
                     recentForm: "—", biggestWinStreak: 0, biggestLossStreak: 0,
                     averageOdds: "—", averageWinningOdds: "—", impliedProbability: "—", edge: "—",
-                    decimalOddsTotal: 0, validOddsCount: 0,
-                    winningDecimalOddsTotal: 0, validWinningOddsCount: 0,
+                    winningProbabilityTotal: 0, validWinningOddsCount: 0,
                     impliedProbabilityTotal: 0, validDecisionOddsCount: 0, winsWithValidOdds: 0,
                     currentResult: null, currentStreak: 0
                 };
@@ -151,14 +144,11 @@ export default async function StatsPage() {
                     if (result === "L") current.biggestLossStreak = Math.max(current.biggestLossStreak, current.currentStreak);
                 }
 
-                const decimalOdds = americanOddsToDecimal(pick.odds);
                 const impliedProbability = americanOddsToProbability(pick.odds);
                 const isDecision = pick.result === "win" || pick.result === "loss";
-                if (decimalOdds !== null && isDecision) {
-                    current.decimalOddsTotal += decimalOdds;
-                    current.validOddsCount++;
+                if (impliedProbability !== null && isDecision) {
                     if (pick.result === "win") {
-                        current.winningDecimalOddsTotal += decimalOdds;
+                        current.winningProbabilityTotal += impliedProbability;
                         current.validWinningOddsCount++;
                     }
                 }
@@ -169,9 +159,12 @@ export default async function StatsPage() {
                 }
                 current.total = current.wins + current.losses + current.pushes;
                 current.winRate = formatWinRate(current.wins, current.wins + current.losses);
-                current.averageOdds = formatAverageAmericanOdds(current.decimalOddsTotal, current.validOddsCount);
+                current.averageOdds = formatAverageAmericanOdds(
+                    current.impliedProbabilityTotal,
+                    current.validDecisionOddsCount
+                );
                 current.averageWinningOdds = formatAverageAmericanOdds(
-                    current.winningDecimalOddsTotal,
+                    current.winningProbabilityTotal,
                     current.validWinningOddsCount
                 );
                 const averageImpliedProbability = current.validDecisionOddsCount

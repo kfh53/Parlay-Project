@@ -12,20 +12,22 @@ export function americanOddsToProbability(odds: number) {
     return decimalOdds === null ? null : 1 / decimalOdds;
 }
 
-export function decimalOddsToAmerican(decimalOdds: number) {
-    if (!Number.isFinite(decimalOdds) || decimalOdds <= 1) return null;
-    return decimalOdds >= 2
-        ? (decimalOdds - 1) * 100
-        : -100 / (decimalOdds - 1);
+export function probabilityToAmerican(probability: number) {
+    if (!Number.isFinite(probability) || probability <= 0 || probability >= 1) return null;
+    return probability > 0.5
+        ? -(probability * 100) / (1 - probability)
+        : (100 * (1 - probability)) / probability;
 }
 
-export function formatAverageAmericanOdds(decimalOddsTotal: number, count: number) {
+export function formatAverageAmericanOdds(probabilityTotal: number, count: number) {
     if (!count) return "—";
-    const americanOdds = decimalOddsToAmerican(decimalOddsTotal / count);
+    const americanOdds = probabilityToAmerican(probabilityTotal / count);
     if (americanOdds === null) return "—";
 
     // Conversion guarantees a standard American line: +100 or greater,
-    // or -100 or less. Round only after converting back from decimal odds.
-    const rounded = Math.round(americanOdds);
+    // or -100 or less. Round only after averaging implied probabilities.
+    const rounded = americanOdds < 0
+        ? -Math.round(Math.abs(americanOdds))
+        : Math.round(americanOdds);
     return `${rounded > 0 ? "+" : ""}${rounded}`;
 }
