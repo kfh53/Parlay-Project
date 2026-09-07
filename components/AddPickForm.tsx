@@ -280,12 +280,12 @@ export default function AddPickForm({
                         maxLength={11}
                         pattern="[+-]?[0-9]+"
                         placeholder="+110 or -125"
-                        title="Enter whole-number odds, optionally starting with + or -"
+                        title="Enter American odds of -100 or lower, or +100 or higher"
                         autoComplete="off"
                         className="min-w-0 flex-1 rounded-md border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     />
                 </div>
-                <p className="text-xs text-slate-500">Choose + or −, then enter the whole-number odds.</p>
+                <p className="text-xs text-slate-500">Choose + or −, then enter 100 or greater.</p>
             </div>
 
             <div className="space-x-2">

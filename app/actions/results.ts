@@ -4,6 +4,7 @@
 import { getSupabaseServerClient } from "@/lib/supabase-server";
 import { getSupabaseAdminClient } from "@/lib/supabase-admin";
 import { revalidatePath } from "next/cache";
+import { isValidAmericanOdds } from "@/lib/odds";
 
 export type SaveGameResultsResult = { error?: string; success?: true };
 
@@ -18,6 +19,9 @@ export async function saveGameResults(formData: FormData) {
     }
     if (totalOdds < -2147483648 || totalOdds > 2147483647) {
         return { error: "Total odds are outside the supported range." } satisfies SaveGameResultsResult;
+    }
+    if (!isValidAmericanOdds(totalOdds)) {
+        return { error: "American odds must be -100 or lower, or +100 or higher." } satisfies SaveGameResultsResult;
     }
 
     const supabase = await getSupabaseServerClient();

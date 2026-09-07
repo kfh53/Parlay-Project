@@ -9,6 +9,7 @@ import {
     matchupTeams
 } from "@/lib/pick-fields";
 import { sendGameLockedEmails } from "@/lib/game-lock-email";
+import { isValidAmericanOdds } from "@/lib/odds";
 
 export type SavePickResult = { error?: string; success?: true };
 
@@ -32,6 +33,10 @@ export async function savePick(formData: FormData) {
 
     if (odds < -2147483648 || odds > 2147483647) {
         return { error: "Odds are outside the supported range." } satisfies SavePickResult;
+    }
+
+    if (!isValidAmericanOdds(odds)) {
+        return { error: "American odds must be -100 or lower, or +100 or higher." } satisfies SavePickResult;
     }
 
     if (!isBetType(betTypeValue)) {
