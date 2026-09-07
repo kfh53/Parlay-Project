@@ -56,7 +56,6 @@ export default function StatsDashboard({ datasets }: { datasets: StatsDataset[] 
         <section className="overflow-hidden rounded-xl border border-slate-700 bg-slate-900 shadow-sm">
             <div className="border-b border-slate-700 px-5 py-4">
                 <h2 className="text-lg font-bold text-slate-100">Group parlay performance</h2>
-                <p className="mt-1 text-sm text-slate-400">Results and closing prices for completed group parlays. Pushed parlays are excluded from win rate and odds calculations.</p>
             </div>
             <div className="divide-y divide-slate-700">
                 <MetricGroup label="Results" columns="five">
@@ -84,7 +83,6 @@ export default function StatsDashboard({ datasets }: { datasets: StatsDataset[] 
         <section className="overflow-hidden rounded-xl border border-slate-700 bg-slate-900 shadow-sm">
             <div className="border-b border-slate-700 px-5 py-4">
                 <h2 className="text-lg font-bold text-slate-100">Profit</h2>
-                <p className="mt-1 text-sm text-slate-400">Net profit with 1 unit staked per completed parlay. Wins use total parlay odds; losses are −1 unit and pushes are 0. Boosts apply only to winnings.</p>
                 {stats.profit.unpricedWins > 0 && <p className="mt-2 text-sm text-amber-300">Profit is unavailable until valid total odds are entered for {stats.profit.unpricedWins} winning {stats.profit.unpricedWins === 1 ? "parlay" : "parlays"}.</p>}
             </div>
             <div className="grid gap-px bg-slate-700 sm:grid-cols-3">
@@ -109,7 +107,7 @@ export default function StatsDashboard({ datasets }: { datasets: StatsDataset[] 
         </section>
 
         <section className="overflow-hidden rounded-xl border border-slate-700 bg-slate-900 shadow-sm">
-            <div className="border-b border-slate-700 px-5 py-4"><h2 className="text-lg font-bold text-slate-100">Odds performance</h2><p className="mt-1 text-sm text-slate-400">Voided and pushed legs are excluded. Average odds are calculated by averaging implied probabilities, then converting the result to standard American odds. Performance vs. expected shows how many percentage points the actual win rate is above or below the win rate implied by the odds.</p></div>
+            <div className="border-b border-slate-700 px-5 py-4"><h2 className="text-lg font-bold text-slate-100">Odds performance</h2></div>
             {!stats.playerStats.length ? <p className="px-5 py-10 text-center text-slate-500">No completed picks for this period.</p> :
                 <div className="overflow-x-auto"><table className="w-full min-w-[48rem] text-left text-sm">
                     <thead className="bg-slate-800 text-xs uppercase tracking-wide text-slate-400"><tr>{oddsHeadings.map(label => <th key={label} className="whitespace-nowrap px-5 py-3 font-semibold">{label}</th>)}</tr></thead>
@@ -122,7 +120,7 @@ export default function StatsDashboard({ datasets }: { datasets: StatsDataset[] 
         </section>
 
         <section className="rounded-xl border border-slate-700 bg-slate-900 p-5 shadow-sm">
-            <div className="mb-5"><h2 className="text-lg font-bold text-slate-100">Win percentage over time</h2><p className="mt-1 text-sm text-slate-400">Cumulative pick win rate; pushes are excluded.</p></div>
+            <div className="mb-5"><h2 className="text-lg font-bold text-slate-100">Win percentage over time</h2></div>
             <WinRateChart series={stats.chartSeries} dates={stats.dates} />
         </section>
     </main>;
