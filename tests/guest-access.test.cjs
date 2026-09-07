@@ -39,23 +39,27 @@ test("participant game cards retain editing and pick controls", () => {
     assert.match(html, /Edit start time/);
     assert.match(html, /Lock My Pick/);
 });
-test("guest dashboard never seeds games and requests only current games", async () => {
+test("guest dashboard shows current and completed games without mutation controls", async () => {
     let statuses;
+    const older = { ...game, id: "older", title: "Older matchup", status: "complete", game_date: "2026-09-01" };
+    const newer = { ...game, id: "newer", title: "Newer matchup", status: "complete", game_date: "2026-09-05" };
     const db = {
         auth: { getUser: async () => ({ data: { user: null } }) },
         from: table => ({
             select() { return this; },
             in(column, values) { assert.equal(column, "status"); statuses = values; return this; },
-            order() { return Promise.resolve({ data: table === "parlays" ? [game] : profiles, error: null }); }
+            order() { return Promise.resolve({ data: table === "parlays" ? [older, game, newer] : profiles, error: null }); }
         })
     };
     const Page = loadTs("app/dashboard/page.tsx", {
         ...uiMocks, "@/lib/supabase-server": { getSupabaseServerClient: async () => db }
     }).default;
     const html = renderToStaticMarkup(await Page());
-    assert.deepEqual(statuses, ["open", "locked"]);
+    assert.deepEqual(statuses, ["open", "locked", "complete"]);
+    assert.match(html, /Completed Games/);
+    assert.ok(html.indexOf("Newer matchup") < html.indexOf("Older matchup"));
     assert.match(html, /Over 200 passing yards/);
-    assert.doesNotMatch(html, /Upcoming Games|Completed Games|<form|<button/);
+    assert.doesNotMatch(html, /Upcoming Games|<form|<button/);
 });
 test("guest stats render completed results and profit without a login", async () => {
     const completed = { ...game, total_odds: 600, status: "complete", picks: [{ ...game.picks[0], result: "win", parlay_killer: false }] };

@@ -33,7 +33,7 @@ export default async function Dashboard() {
                         result
                     )
                 `)
-                .in("status", user ? ["upcoming", "open", "locked", "complete"] : ["open", "locked"])
+                .in("status", user ? ["upcoming", "open", "locked", "complete"] : ["open", "locked", "complete"])
                 .order("game_date", { ascending: true }),
 
 
@@ -67,13 +67,22 @@ export default async function Dashboard() {
         .sort((a, b) => b.game_date.localeCompare(a.game_date)) ?? [];
 
     if (!user) {
-        return <main className="space-y-6">
-            <h1 className="text-2xl font-bold text-slate-100">Current Games</h1>
-            {error ? <p role="alert" className="text-red-300">Games could not be loaded. Please try again later.</p>
-                : currentGames.length ? <div className="flex snap-x snap-mandatory gap-5 overflow-x-auto pb-3 pr-4">
-                    {currentGames.map(parlay => <GameCard key={parlay.id} parlay={parlay}
-                        profiles={profiles ?? []} currentUserId={null} />)}
-                </div> : <p className="text-slate-400">No current games.</p>}
+        return <main className="space-y-10">
+            {error ? <p role="alert" className="text-red-300">Games could not be loaded. Please try again later.</p> : <>
+                {[
+                    { title: "Current Games", games: currentGames, empty: "No current games." },
+                    { title: "Completed Games", games: completedGames ?? [], empty: "No completed games." }
+                ].map(section => <section key={section.title} className="space-y-4">
+                    <div className="flex items-center justify-between gap-4">
+                        <h2 className="text-2xl font-bold text-slate-100">{section.title}</h2>
+                        <span className="rounded-full bg-slate-800 px-3 py-1 text-sm font-semibold text-slate-300">{section.games.length}</span>
+                    </div>
+                    {section.games.length ? <div className="flex snap-x snap-mandatory gap-5 overflow-x-auto pb-3 pr-4">
+                        {section.games.map(parlay => <GameCard key={parlay.id} parlay={parlay}
+                            profiles={profiles ?? []} currentUserId={null} />)}
+                    </div> : <p className="text-slate-400">{section.empty}</p>}
+                </section>)}
+            </>}
         </main>;
     }
 

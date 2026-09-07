@@ -5,8 +5,8 @@ Guests can open /dashboard and /stats directly without an account. Navigation sh
 Guest and a Sign in link. No shared guest login or Supabase anonymous sign-in is used.
 
 Guests see current (open/locked) games and all submitted picks, including unlocked
-picks. Upcoming and completed game sections remain in the participant dashboard;
-completed game and pick data are publicly readable to support the stats page.
+picks. Completed game cards appear below current games, newest first, with the same
+read-only controls. Upcoming games remain in the participant dashboard.
 Public fields include display names, selections, odds, lock status, kickoff times,
 game notes, and results. Account emails and notification records are not exposed.
 
