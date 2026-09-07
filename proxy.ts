@@ -4,6 +4,9 @@ import { NextResponse, type NextRequest } from "next/server";
 const PROTECTED_ROUTES = ["/dashboard", "/stats"];
 
 export async function proxy(request: NextRequest) {
+    // The cron endpoint authenticates its own bearer secret, without browser sessions.
+    if (request.nextUrl.pathname === "/api/cron/pick-reminders") return NextResponse.next();
+
     let supabaseResponse = NextResponse.next({ request });
 
     const supabase = createServerClient(

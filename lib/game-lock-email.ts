@@ -2,7 +2,7 @@ import "server-only";
 
 import { getSupabaseAdminClient } from "@/lib/supabase-admin";
 
-const LOCK_NOTIFICATION_RECIPIENT = "kyle.f.harris53@gmail.com";
+import { isAllowedNotificationRecipient } from "./notification-recipient";
 
 type LockedPick = {
     id: string;
@@ -93,7 +93,7 @@ export async function sendGameLockedEmails(parlayId: string) {
             return;
         }
 
-        if (email.toLowerCase() !== LOCK_NOTIFICATION_RECIPIENT) return;
+        if (!isAllowedNotificationRecipient(email)) return;
 
         const { data: existingNotification } = await supabase
             .from("game_notifications")

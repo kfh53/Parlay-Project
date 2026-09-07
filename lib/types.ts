@@ -21,6 +21,7 @@ export interface Parlay {
     id: string;
     title: string;
     game_date: string;
+    starts_at?: string | null;
     status: string;
     created_by: string;
     total_odds?: number | null;

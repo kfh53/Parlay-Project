@@ -44,8 +44,8 @@ export default function CreateGameForm() {
         try {
             await createGame(formData);
             setOpen(false);
-        } catch {
-            setError("The game could not be created. Please try again.");
+        } catch (cause) {
+            setError(cause instanceof Error ? cause.message : "The game could not be created. Please try again.");
         } finally {
             setIsSaving(false);
         }
@@ -119,6 +119,11 @@ export default function CreateGameForm() {
                                     required
                                     className="w-full rounded-md border border-slate-600 bg-slate-950 px-3 py-2.5 text-slate-100 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                                 />
+                            </div>
+
+                            <div className="space-y-1.5">
+                                <label htmlFor="game-time" className="block text-sm font-semibold text-slate-200">Start time (Eastern)</label>
+                                <input id="game-time" name="gameTime" type="time" required className="w-full rounded-md border border-slate-600 bg-slate-950 px-3 py-2.5 text-slate-100 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" />
                             </div>
 
                             <div className="space-y-1.5">

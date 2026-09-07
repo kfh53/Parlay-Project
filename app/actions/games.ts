@@ -5,6 +5,7 @@ import { FootballStage, getFootballMetadata } from "@/lib/football-calendar";
 import { abbreviateMatchup, PRIME_TIME_GAMES_2026 } from "@/lib/prime-time-schedule";
 import { getPrimetimeType } from "@/lib/primetime-type";
 import { revalidatePath } from "next/cache";
+import { easternKickoffToIso, scheduledKickoffToIso } from "@/lib/game-time";
 
 function optionalInteger(value: FormDataEntryValue | null, label: string) {
     if (value === null || value.toString().trim() === "") return null;
@@ -46,6 +47,7 @@ export async function createGame(formData: FormData) {
     }
 
     const footballMetadata = getFootballMetadata(gameDate);
+    const startsAt = easternKickoffToIso(gameDate, formData.get("gameTime")?.toString() ?? "");
     const resolvedStage = (stage as FootballStage | null) ?? footballMetadata.stage;
 
 
@@ -69,6 +71,7 @@ export async function createGame(formData: FormData) {
             .insert({
                 title,
                 game_date: gameDate,
+                starts_at: startsAt,
                 status: "upcoming",
                 result: null,
                 total_odds: null,
@@ -99,7 +102,7 @@ export async function ensurePrimeTimeGames() {
     const [existingResult, dismissedResult] = await Promise.all([
         supabase
             .from("parlays")
-            .select("id, title, game_date")
+            .select("id, title, game_date, starts_at")
             .eq("season", 2026),
         supabase
             .from("dismissed_games")
@@ -121,6 +124,16 @@ export async function ensurePrimeTimeGames() {
     const scheduledDates = new Map(
         (existing ?? []).map(game => [`${game.game_date}|${game.title}`, game])
     );
+    // Fill known schedule times only when missing; preserve manually edited kickoffs.
+    for (const game of PRIME_TIME_GAMES_2026) {
+        const existingGame = scheduledDates.get(`${game.gameDate}|${abbreviateMatchup(game.title)}`)
+            ?? scheduledDates.get(`${game.gameDate}|${game.title}`);
+        if (!existingGame || existingGame.starts_at) continue;
+        const { error } = await supabase.from("parlays")
+            .update({ starts_at: scheduledKickoffToIso(game.gameDate, game.time) })
+            .eq("id", existingGame.id).is("starts_at", null);
+        if (error) console.error("Unable to fill scheduled kickoff:", error);
+    }
 
     // Bring schedule rows seeded by the previous full-name format in line with
     // the abbreviated historical matchup format.
@@ -132,7 +145,7 @@ export async function ensurePrimeTimeGames() {
             .from("parlays")
             .update({
                 title: abbreviateMatchup(game.title),
-                notes: `${game.window} * ${game.time.replace(" PM", "")} * WEEK ${game.week}`,
+                notes: `${game.window} * WEEK ${game.week}`,
                 primetime_type: getPrimetimeType(game.gameDate, "regular")
             })
             .eq("id", legacy.id);
@@ -161,10 +174,11 @@ export async function ensurePrimeTimeGames() {
         .map(game => ({
             title: abbreviateMatchup(game.title),
             game_date: game.gameDate,
+            starts_at: scheduledKickoffToIso(game.gameDate, game.time),
             status: "upcoming",
             result: null,
             total_odds: null,
-            notes: `${game.window} * ${game.time.replace(" PM", "")} * WEEK ${game.week}`,
+            notes: `${game.window} * WEEK ${game.week}`,
             created_by: user.id,
             season: 2026,
             week: game.week,
@@ -181,4 +195,22 @@ export async function ensurePrimeTimeGames() {
     if (insertError) {
         console.error("Unable to add the prime-time schedule:", insertError);
     }
+}
+
+export async function updateGameStartTime(formData: FormData) {
+    const id = formData.get("id")?.toString();
+    if (!id) throw new Error("Missing game id.");
+    const supabase = await getSupabaseServerClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("User not authenticated.");
+    const { data: game, error } = await supabase.from("parlays")
+        .select("game_date, status").eq("id", id).single();
+    if (error || !game) throw new Error("Game could not be loaded.");
+    if (game.status === "complete") throw new Error("Completed games cannot be rescheduled.");
+    const startsAt = easternKickoffToIso(game.game_date, formData.get("gameTime")?.toString() ?? "");
+    const { data: updated, error: updateError } = await supabase.from("parlays")
+        .update({ starts_at: startsAt }).eq("id", id).neq("status", "complete")
+        .eq("game_date", game.game_date).select("id");
+    if (updateError || !updated?.length) throw new Error("Start time could not be saved. Refresh and try again.");
+    revalidatePath("/dashboard");
 }

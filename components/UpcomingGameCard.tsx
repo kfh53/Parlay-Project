@@ -1,6 +1,7 @@
 import { promoteGame } from "@/app/actions/parlays";
 import { Parlay } from "@/lib/types";
 import DeleteGameButton from "./DeleteGameButton";
+import GameStartTime from "./GameStartTime";
 
 export default function UpcomingGameCard({ parlay }: { parlay: Parlay }) {
     return (
@@ -20,6 +21,7 @@ export default function UpcomingGameCard({ parlay }: { parlay: Parlay }) {
 
                 <h3 className="mt-4 text-lg font-bold text-slate-100">{parlay.title}</h3>
                 <p className="mt-1 text-sm text-slate-400">{parlay.game_date}</p>
+                <GameStartTime parlay={parlay} />
                 <p className="mt-2 min-h-4 text-xs font-semibold uppercase tracking-wider text-blue-300">
                     {parlay.notes ?? ""}
                 </p>

@@ -8,6 +8,7 @@ import GameActions from "./GameActions";
 import DeleteGameButton from "./DeleteGameButton";
 import LockPickButton from "./LockPickButton";
 import GameResultsForm from "./GameResultsForm";
+import GameStartTime from "./GameStartTime";
 
 
 interface GameCardProps {
@@ -99,6 +100,7 @@ export default function GameCard({
                 <p className="mt-1 text-sm text-slate-400">
                     {parlay.game_date}
                 </p>
+                <GameStartTime parlay={parlay} />
 
                 <p className="mt-1 min-h-4 text-xs font-semibold uppercase tracking-wider text-blue-300">
                     {parlay.notes ?? ""}
