@@ -181,13 +181,59 @@ export default async function StatsPage() {
             }
         }
         const records: StatsDataset["playerStats"] = [...stats.values()].sort((a, b) =>
-            b.wins / (b.wins + b.losses) - a.wins / (a.wins + a.losses) || b.wins - a.wins || a.name.localeCompare(b.name)
+            (b.wins + b.losses ? b.wins / (b.wins + b.losses) : 0) -
+            (a.wins + a.losses ? a.wins / (a.wins + a.losses) : 0) ||
+            b.wins - a.wins || a.name.localeCompare(b.name)
         );
+        const groupTotals = [...stats.values()].reduce((group, player) => ({
+            picks: group.picks + player.total,
+            wins: group.wins + player.wins,
+            losses: group.losses + player.losses,
+            pushes: group.pushes + player.pushes,
+            parlayKillers: group.parlayKillers + player.parlayKillers,
+            winningProbabilityTotal: group.winningProbabilityTotal + player.winningProbabilityTotal,
+            validWinningOddsCount: group.validWinningOddsCount + player.validWinningOddsCount,
+            impliedProbabilityTotal: group.impliedProbabilityTotal + player.impliedProbabilityTotal,
+            validDecisionOddsCount: group.validDecisionOddsCount + player.validDecisionOddsCount,
+            winsWithValidOdds: group.winsWithValidOdds + player.winsWithValidOdds
+        }), {
+            picks: 0, wins: 0, losses: 0, pushes: 0, parlayKillers: 0,
+            winningProbabilityTotal: 0, validWinningOddsCount: 0,
+            impliedProbabilityTotal: 0, validDecisionOddsCount: 0, winsWithValidOdds: 0
+        });
+        const groupAverageImpliedProbability = groupTotals.validDecisionOddsCount
+            ? groupTotals.impliedProbabilityTotal / groupTotals.validDecisionOddsCount
+            : 0;
+        const groupActualProbability = groupTotals.validDecisionOddsCount
+            ? groupTotals.winsWithValidOdds / groupTotals.validDecisionOddsCount
+            : 0;
+        const groupStats: StatsDataset["groupStats"] = {
+            picks: groupTotals.picks,
+            wins: groupTotals.wins,
+            losses: groupTotals.losses,
+            pushes: groupTotals.pushes,
+            parlayKillers: groupTotals.parlayKillers,
+            winRate: formatWinRate(groupTotals.wins, groupTotals.wins + groupTotals.losses),
+            averageOdds: formatAverageAmericanOdds(
+                groupTotals.impliedProbabilityTotal,
+                groupTotals.validDecisionOddsCount
+            ),
+            averageWinningOdds: formatAverageAmericanOdds(
+                groupTotals.winningProbabilityTotal,
+                groupTotals.validWinningOddsCount
+            ),
+            impliedProbability: groupTotals.validDecisionOddsCount
+                ? formatPercent(groupAverageImpliedProbability)
+                : "—",
+            edge: groupTotals.validDecisionOddsCount
+                ? formatPercentagePointDelta(groupActualProbability - groupAverageImpliedProbability)
+                : "—"
+        };
         const periodWins = games.filter(parlay => parlay.outcome === "win").length;
         const periodLosses = games.filter(parlay => parlay.outcome === "loss").length;
         return {
             value, label, completedParlays: games.length, wins: periodWins, losses: periodLosses,
-            winRate: formatWinRate(periodWins, periodWins + periodLosses), playerStats: records,
+            winRate: formatWinRate(periodWins, periodWins + periodLosses), groupStats, playerStats: records,
             chartSeries: buildWinRateDataset(games), dates: games.map(parlay => parlay.game_date)
         };
     }
