@@ -153,7 +153,8 @@ export default async function StatsPage() {
 
                 const decimalOdds = americanOddsToDecimal(pick.odds);
                 const impliedProbability = americanOddsToProbability(pick.odds);
-                if (decimalOdds !== null) {
+                const isDecision = pick.result === "win" || pick.result === "loss";
+                if (decimalOdds !== null && isDecision) {
                     current.decimalOddsTotal += decimalOdds;
                     current.validOddsCount++;
                     if (pick.result === "win") {
@@ -161,7 +162,7 @@ export default async function StatsPage() {
                         current.validWinningOddsCount++;
                     }
                 }
-                if ((pick.result === "win" || pick.result === "loss") && impliedProbability !== null) {
+                if (isDecision && impliedProbability !== null) {
                     current.impliedProbabilityTotal += impliedProbability;
                     current.validDecisionOddsCount++;
                     if (pick.result === "win") current.winsWithValidOdds++;
