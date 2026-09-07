@@ -11,12 +11,15 @@ export type StatsDataset = {
     losses: number;
     winRate: string;
     groupStats: {
-        picks: number;
+        parlays: number;
         wins: number;
         losses: number;
         pushes: number;
-        parlayKillers: number;
+        parlayKillerParlays: number;
         winRate: string;
+        recentForm: string;
+        biggestWinStreak: number;
+        biggestLossStreak: number;
         averageOdds: string;
         averageWinningOdds: string;
         impliedProbability: string;
@@ -35,7 +38,7 @@ export default function StatsDashboard({ datasets }: { datasets: StatsDataset[] 
     const [period, setPeriod] = useState("all");
     const stats = datasets.find(dataset => dataset.value === period) ?? datasets[0];
     const recordHeadings = ["Player", "Picks", "Wins", "Losses", "Pushes", "Parlay killers", "Win rate", "Recent form", "Best W streak", "Worst L streak"];
-    const oddsHeadings = ["Player", "Average odds", "Average winning odds", "Implied win probability", "Actual vs. implied"];
+    const oddsHeadings = ["Player", "Average odds", "Average winning odds", "Implied win probability", "Performance vs. expected"];
 
     return <main className="space-y-8">
         <div className="flex flex-wrap items-end justify-between gap-4">
@@ -48,29 +51,31 @@ export default function StatsDashboard({ datasets }: { datasets: StatsDataset[] 
             </div>
         </div>
 
-        <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <StatCard label="Completed parlays" value={stats.completedParlays} />
-            <StatCard label="Parlay wins" value={stats.wins} tone="emerald" />
-            <StatCard label="Parlay losses" value={stats.losses} tone="red" />
-            <StatCard label="Parlay win rate" value={stats.winRate} tone="blue" />
-        </section>
-
         <section className="overflow-hidden rounded-xl border border-slate-700 bg-slate-900 shadow-sm">
             <div className="border-b border-slate-700 px-5 py-4">
-                <h2 className="text-lg font-bold text-slate-100">Group pick performance</h2>
-                <p className="mt-1 text-sm text-slate-400">Combined results for every player in the selected period. Voided and pushed legs are excluded from win rate and odds calculations.</p>
+                <h2 className="text-lg font-bold text-slate-100">Group parlay performance</h2>
+                <p className="mt-1 text-sm text-slate-400">Results and closing prices for completed group parlays. Pushed parlays are excluded from win rate and odds calculations.</p>
             </div>
-            <div className="grid gap-px bg-slate-700 sm:grid-cols-2 lg:grid-cols-5">
-                <GroupMetric label="Picks" value={stats.groupStats.picks} />
-                <GroupMetric label="Wins" value={stats.groupStats.wins} tone="emerald" />
-                <GroupMetric label="Losses" value={stats.groupStats.losses} tone="red" />
-                <GroupMetric label="Pushes" value={stats.groupStats.pushes} tone="amber" />
-                <GroupMetric label="Pick win rate" value={stats.groupStats.winRate} tone="blue" />
-                <GroupMetric label="Average odds" value={stats.groupStats.averageOdds} />
-                <GroupMetric label="Average winning odds" value={stats.groupStats.averageWinningOdds} tone="emerald" />
-                <GroupMetric label="Implied win probability" value={stats.groupStats.impliedProbability} />
-                <GroupMetric label="Actual vs. implied" value={stats.groupStats.edge} tone="blue" />
-                <GroupMetric label="Parlay killers" value={stats.groupStats.parlayKillers} tone="red" />
+            <div className="divide-y divide-slate-700">
+                <MetricGroup label="Results" columns="five">
+                    <GroupMetric label="Completed parlays" value={stats.groupStats.parlays} />
+                    <GroupMetric label="Parlay wins" value={stats.groupStats.wins} tone="emerald" />
+                    <GroupMetric label="Parlay losses" value={stats.groupStats.losses} tone="red" />
+                    <GroupMetric label="Parlay pushes" value={stats.groupStats.pushes} tone="amber" />
+                    <GroupMetric label="Parlay win rate" value={stats.groupStats.winRate} tone="blue" />
+                </MetricGroup>
+                <MetricGroup label="Momentum">
+                    <GroupMetric label="Recent parlay form" value={stats.groupStats.recentForm} />
+                    <GroupMetric label="Best win streak" value={stats.groupStats.biggestWinStreak} tone="emerald" />
+                    <GroupMetric label="Worst loss streak" value={stats.groupStats.biggestLossStreak} tone="red" />
+                    <GroupMetric label="Parlay killer parlays" value={stats.groupStats.parlayKillerParlays} tone="red" />
+                </MetricGroup>
+                <MetricGroup label="Odds">
+                    <GroupMetric label="Average parlay odds" value={stats.groupStats.averageOdds} />
+                    <GroupMetric label="Average winning parlay odds" value={stats.groupStats.averageWinningOdds} tone="emerald" />
+                    <GroupMetric label="Implied win probability" value={stats.groupStats.impliedProbability} />
+                    <GroupMetric label="Performance vs. expected" value={stats.groupStats.edge} tone="blue" />
+                </MetricGroup>
             </div>
         </section>
 
@@ -89,7 +94,7 @@ export default function StatsDashboard({ datasets }: { datasets: StatsDataset[] 
         </section>
 
         <section className="overflow-hidden rounded-xl border border-slate-700 bg-slate-900 shadow-sm">
-            <div className="border-b border-slate-700 px-5 py-4"><h2 className="text-lg font-bold text-slate-100">Odds performance</h2><p className="mt-1 text-sm text-slate-400">Voided and pushed legs are excluded. Average odds are calculated by averaging implied probabilities, then converting the result to standard American odds. Actual vs. implied is the player&apos;s win rate minus the average implied probability of their decided picks.</p></div>
+            <div className="border-b border-slate-700 px-5 py-4"><h2 className="text-lg font-bold text-slate-100">Odds performance</h2><p className="mt-1 text-sm text-slate-400">Voided and pushed legs are excluded. Average odds are calculated by averaging implied probabilities, then converting the result to standard American odds. Performance vs. expected shows how many percentage points the actual win rate is above or below the win rate implied by the odds.</p></div>
             {!stats.playerStats.length ? <p className="px-5 py-10 text-center text-slate-500">No completed picks for this period.</p> :
                 <div className="overflow-x-auto"><table className="w-full min-w-[48rem] text-left text-sm">
                     <thead className="bg-slate-800 text-xs uppercase tracking-wide text-slate-400"><tr>{oddsHeadings.map(label => <th key={label} className="whitespace-nowrap px-5 py-3 font-semibold">{label}</th>)}</tr></thead>
@@ -108,11 +113,6 @@ export default function StatsDashboard({ datasets }: { datasets: StatsDataset[] 
     </main>;
 }
 
-function StatCard({ label, value, tone = "slate" }: { label: string; value: string | number; tone?: "slate" | "emerald" | "red" | "blue" }) {
-    const styles = { slate: "border-slate-700 bg-slate-900", emerald: "border-emerald-800 bg-emerald-950/60", red: "border-red-800 bg-red-950/60", blue: "border-blue-800 bg-blue-950/60" };
-    return <div className={`rounded-xl border p-5 ${styles[tone]}`}><p className="text-sm font-medium text-slate-400">{label}</p><p className="mt-2 text-3xl font-bold text-slate-100">{value}</p></div>;
-}
-
 
 function GroupMetric({ label, value, tone = "slate" }: {
     label: string;
@@ -129,5 +129,17 @@ function GroupMetric({ label, value, tone = "slate" }: {
     return <div className="min-h-28 bg-slate-900 px-5 py-4">
         <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">{label}</p>
         <p className={`mt-2 text-2xl font-bold ${valueStyles[tone]}`}>{value}</p>
+    </div>;
+}
+
+function MetricGroup({ label, columns = "four", children }: {
+    label: string;
+    columns?: "four" | "five";
+    children: React.ReactNode;
+}) {
+    const desktopColumns = columns === "five" ? "lg:grid-cols-5" : "lg:grid-cols-4";
+    return <div>
+        <h3 className="bg-slate-950/40 px-5 py-2 text-xs font-semibold uppercase tracking-widest text-slate-500">{label}</h3>
+        <div className={`grid gap-px bg-slate-700 sm:grid-cols-2 ${desktopColumns}`}>{children}</div>
     </div>;
 }

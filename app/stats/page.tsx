@@ -20,6 +20,30 @@ function getSeasonYear(gameDate: string) {
     return String(month <= 2 ? year - 1 : year);
 }
 
+function getStreakStats(outcomes: ParlayOutcome[]) {
+    let current: "win" | "loss" | null = null;
+    let currentCount = 0;
+    let biggestWinStreak = 0;
+    let biggestLossStreak = 0;
+
+    for (const outcome of outcomes) {
+        if (outcome === "push") continue;
+        if (outcome === current) currentCount++;
+        else {
+            current = outcome;
+            currentCount = 1;
+        }
+        if (outcome === "win") biggestWinStreak = Math.max(biggestWinStreak, currentCount);
+        else biggestLossStreak = Math.max(biggestLossStreak, currentCount);
+    }
+
+    return {
+        recentForm: current ? `${current === "win" ? "W" : "L"}${currentCount}` : "—",
+        biggestWinStreak,
+        biggestLossStreak
+    };
+}
+
 export default async function StatsPage() {
     const supabase = await getSupabaseServerClient();
 
@@ -30,6 +54,7 @@ export default async function StatsPage() {
                 id,
                     game_date,
                     status,
+                    total_odds,
                     picks (
                         id,
                         user_id,
@@ -185,19 +210,27 @@ export default async function StatsPage() {
             (a.wins + a.losses ? a.wins / (a.wins + a.losses) : 0) ||
             b.wins - a.wins || a.name.localeCompare(b.name)
         );
-        const groupTotals = [...stats.values()].reduce((group, player) => ({
-            picks: group.picks + player.total,
-            wins: group.wins + player.wins,
-            losses: group.losses + player.losses,
-            pushes: group.pushes + player.pushes,
-            parlayKillers: group.parlayKillers + player.parlayKillers,
-            winningProbabilityTotal: group.winningProbabilityTotal + player.winningProbabilityTotal,
-            validWinningOddsCount: group.validWinningOddsCount + player.validWinningOddsCount,
-            impliedProbabilityTotal: group.impliedProbabilityTotal + player.impliedProbabilityTotal,
-            validDecisionOddsCount: group.validDecisionOddsCount + player.validDecisionOddsCount,
-            winsWithValidOdds: group.winsWithValidOdds + player.winsWithValidOdds
-        }), {
-            picks: 0, wins: 0, losses: 0, pushes: 0, parlayKillers: 0,
+        const groupTotals = games.reduce((group, parlay) => {
+            if (parlay.outcome === "win") group.wins++;
+            if (parlay.outcome === "loss") group.losses++;
+            if (parlay.outcome === "push") group.pushes++;
+            if (parlay.picks.some(pick => pick.parlay_killer)) group.parlayKillerParlays++;
+
+            const impliedProbability = parlay.total_odds === null
+                ? null
+                : americanOddsToProbability(parlay.total_odds);
+            if (parlay.outcome !== "push" && impliedProbability !== null) {
+                group.impliedProbabilityTotal += impliedProbability;
+                group.validDecisionOddsCount++;
+                if (parlay.outcome === "win") {
+                    group.winsWithValidOdds++;
+                    group.winningProbabilityTotal += impliedProbability;
+                    group.validWinningOddsCount++;
+                }
+            }
+            return group;
+        }, {
+            wins: 0, losses: 0, pushes: 0, parlayKillerParlays: 0,
             winningProbabilityTotal: 0, validWinningOddsCount: 0,
             impliedProbabilityTotal: 0, validDecisionOddsCount: 0, winsWithValidOdds: 0
         });
@@ -207,13 +240,15 @@ export default async function StatsPage() {
         const groupActualProbability = groupTotals.validDecisionOddsCount
             ? groupTotals.winsWithValidOdds / groupTotals.validDecisionOddsCount
             : 0;
+        const groupStreaks = getStreakStats(games.map(parlay => parlay.outcome));
         const groupStats: StatsDataset["groupStats"] = {
-            picks: groupTotals.picks,
+            parlays: games.length,
             wins: groupTotals.wins,
             losses: groupTotals.losses,
             pushes: groupTotals.pushes,
-            parlayKillers: groupTotals.parlayKillers,
+            parlayKillerParlays: groupTotals.parlayKillerParlays,
             winRate: formatWinRate(groupTotals.wins, groupTotals.wins + groupTotals.losses),
+            ...groupStreaks,
             averageOdds: formatAverageAmericanOdds(
                 groupTotals.impliedProbabilityTotal,
                 groupTotals.validDecisionOddsCount
@@ -256,5 +291,6 @@ function formatPercent(value: number) {
 
 function formatPercentagePointDelta(value: number) {
     const percentagePoints = value * 100;
-    return `${percentagePoints > 0 ? "+" : ""}${percentagePoints.toFixed(2)} pp`;
+    if (Math.abs(percentagePoints) < 0.005) return "Even with expected";
+    return `${Math.abs(percentagePoints).toFixed(2)} points ${percentagePoints > 0 ? "above" : "below"}`;
 }
