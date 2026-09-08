@@ -268,8 +268,8 @@ export default async function StatsPage() {
         const periodWins = games.filter(parlay => parlay.outcome === "win").length;
         const periodLosses = games.filter(parlay => parlay.outcome === "loss").length;
         return {
-            value, label, completedParlays: games.length, wins: periodWins, losses: periodLosses,
             profit: calculateParlayProfit(games),
+            value, label, completedParlays: games.length, wins: periodWins, losses: periodLosses,
             winRate: formatWinRate(periodWins, periodWins + periodLosses), groupStats, playerStats: records,
             chartSeries: buildWinRateDataset(games), dates: games.map(parlay => parlay.game_date)
         };
