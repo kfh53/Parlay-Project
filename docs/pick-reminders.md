@@ -2,9 +2,9 @@
 
 Games store `starts_at` as a PostgreSQL timestamp with timezone (UTC). Dates and editable start times use America/New_York. The database checks that kickoff's Eastern date equals `game_date`. Summer and winter offsets are automatic. Nonexistent and ambiguous DST transition times are rejected instead of silently guessing.
 
-Delivery is currently restricted to **kyle.f.harris53@gmail.com**, matching game-lock emails. Other participants are skipped, not redirected to the owner. Only the owner's missing or unlocked pick triggers a reminder. Stored retry payloads are checked against the same restriction before sending.
+Delivery is enabled for all eligible participants, matching game-lock emails. The temporary owner-only restriction is commented out in `lib/notification-recipient.ts`; restore that return statement and remove the active return to restrict both email flows for testing. Stored retry payloads still require a single recipient with no cc/bcc.
 
-The owner (a row in `profiles` with a confirmed account email) is eligible for:
+Each participant (a row in `profiles` with a confirmed account email) is eligible for:
 - One reminder at 8 a.m. New York time on the game's Eastern date.
 - One reminder two hours before kickoff.
 - Only when their pick is missing or unlocked and the game is upcoming or open.

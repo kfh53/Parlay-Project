@@ -20,7 +20,7 @@ export default function GameActions({
     canManageResults,
     canComplete,
     completionMessage,
-    onManageAllPicks,
+    // onManageAllPicks, // Restore with the Manage All Picks button below.
     onEnterResults
 }: GameActionsProps) {
 
@@ -28,6 +28,7 @@ export default function GameActions({
         <div className="flex flex-wrap gap-2">
 
 
+            {/* Temporarily hidden; restore this block to enable Manage All Picks.
             {status === "open" && canManageResults && (
                 <button
                     type="button"
@@ -37,6 +38,7 @@ export default function GameActions({
                     Manage All Picks
                 </button>
             )}
+            */}
 
 
 

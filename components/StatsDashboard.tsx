@@ -55,6 +55,18 @@ export default function StatsDashboard({ datasets }: { datasets: StatsDataset[] 
 
         <section className="overflow-hidden rounded-xl border border-slate-700 bg-slate-900 shadow-sm">
             <div className="border-b border-slate-700 px-5 py-4">
+                <h2 className="text-lg font-bold text-slate-100">Profit</h2>
+                {stats.profit.unpricedWins > 0 && <p className="mt-2 text-sm text-amber-300">Profit is unavailable until valid total odds are entered for {stats.profit.unpricedWins} winning {stats.profit.unpricedWins === 1 ? "parlay" : "parlays"}.</p>}
+            </div>
+            <div className="grid gap-px bg-slate-700 sm:grid-cols-3">
+                <ProfitMetric label="Standard odds" value={stats.profit.standard} />
+                <ProfitMetric label="25% odds boost" value={stats.profit.boost25} />
+                <ProfitMetric label="50% odds boost" value={stats.profit.boost50} />
+            </div>
+        </section>
+
+        <section className="overflow-hidden rounded-xl border border-slate-700 bg-slate-900 shadow-sm">
+            <div className="border-b border-slate-700 px-5 py-4">
                 <h2 className="text-lg font-bold text-slate-100">Group parlay performance</h2>
             </div>
             <div className="divide-y divide-slate-700">
@@ -77,18 +89,6 @@ export default function StatsDashboard({ datasets }: { datasets: StatsDataset[] 
                     <GroupMetric label="Implied win probability" value={stats.groupStats.impliedProbability} />
                     <GroupMetric label="Performance vs. expected" value={stats.groupStats.edge} tone="blue" />
                 </MetricGroup>
-            </div>
-        </section>
-
-        <section className="overflow-hidden rounded-xl border border-slate-700 bg-slate-900 shadow-sm">
-            <div className="border-b border-slate-700 px-5 py-4">
-                <h2 className="text-lg font-bold text-slate-100">Profit</h2>
-                {stats.profit.unpricedWins > 0 && <p className="mt-2 text-sm text-amber-300">Profit is unavailable until valid total odds are entered for {stats.profit.unpricedWins} winning {stats.profit.unpricedWins === 1 ? "parlay" : "parlays"}.</p>}
-            </div>
-            <div className="grid gap-px bg-slate-700 sm:grid-cols-3">
-                <ProfitMetric label="Standard odds" value={stats.profit.standard} />
-                <ProfitMetric label="25% odds boost" value={stats.profit.boost25} />
-                <ProfitMetric label="50% odds boost" value={stats.profit.boost50} />
             </div>
         </section>
 

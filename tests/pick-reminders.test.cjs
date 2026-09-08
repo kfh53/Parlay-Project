@@ -26,21 +26,21 @@ function fixture() {
         now: () => new Date("2026-09-07T12:00:00Z") };
     return { game, ledger, sends, finishes, store, options };
 }
-test("sends only to the owner and does not claim other participants", async () => {
+test("sends to all participants with missing or unlocked picks", async () => {
     const f = fixture();
     const summary = await runPickReminders(f.options);
-    assert.equal(summary.sent, 1);
-    assert.deepEqual([...f.ledger.keys()], ["draft"]);
-    assert.deepEqual(f.sends.map(s => s.payload.to), [[ownerEmail]]);
+    assert.equal(summary.sent, 2);
+    assert.deepEqual([...f.ledger.keys()], ["draft", "missing"]);
+    assert.deepEqual(f.sends.map(s => s.payload.to), [[ownerEmail], ["missing@example.com"]]);
     assert.match(f.sends[0].payload.text, /8:15 PM EDT/);
     assert.match(f.sends[0].payload.text, /https:\/\/example.com\/dashboard/);
-    assert.equal(f.finishes.filter(item => item.status === "sent").length, 1);
+    assert.equal(f.finishes.filter(item => item.status === "sent").length, 2);
 });
 test("repeat and overlapping runs respect claimed deliveries", async () => {
     const f = fixture();
     await Promise.all([runPickReminders(f.options), runPickReminders(f.options)]);
     await runPickReminders(f.options);
-    assert.equal(f.sends.length, 1);
+    assert.equal(f.sends.length, 2);
 });
 test("dry run neither claims deliveries nor looks up emails nor sends", async () => {
     const f = fixture();
@@ -69,20 +69,20 @@ test("retry uses the stored payload and stable provider key", async () => {
     await runPickReminders(f.options);
     assert.deepEqual(f.sends, [{ payload, key: "pick-reminder/stable-id" }, { payload, key: "pick-reminder/stable-id" }]);
 });
-test("provider failures are recorded without sending to other participants", async t => {
+test("provider failures are recorded while other participants still receive emails", async t => {
     t.mock.method(console, "error", () => {});
     const f = fixture();
     f.options.send = async payload => { if (payload.to[0] === ownerEmail) throw new Error("503"); return "ok"; };
     const result = await runPickReminders(f.options);
     assert.equal(result.failed, 1);
-    assert.equal(result.sent, 0);
-    assert.deepEqual(f.finishes.map(item => item.status), ["failed"]);
+    assert.equal(result.sent, 1);
+    assert.deepEqual(f.finishes.map(item => item.status), ["failed", "sent"]);
 });
 test("failed claims never send, and work is bounded per invocation", async t => {
     t.mock.method(console, "error", () => {});
     const f = fixture();
     f.store.claim = async () => { throw new Error("Database unavailable"); };
-    assert.equal((await runPickReminders(f.options)).failed, 1);
+    assert.equal((await runPickReminders(f.options)).failed, 2);
     assert.equal(f.sends.length, 0);
     const limited = fixture();
     const result = await runPickReminders({ ...limited.options, maxAttempts: 1 });
@@ -93,16 +93,15 @@ test("failed claims never send, and work is bounded per invocation", async t => 
 test("owner with a missing pick qualifies; a locked owner never receives reminders", async () => {
     const f = fixture();
     f.store.email = async id => id === "missing" ? ownerEmail.toUpperCase() : id + "@example.com";
-    assert.equal((await runPickReminders(f.options)).sent, 1);
-    assert.deepEqual([...f.ledger.keys()], ["missing"]);
+    assert.equal((await runPickReminders(f.options)).sent, 2);
+    assert.deepEqual([...f.ledger.keys()], ["draft", "missing"]);
     const locked = fixture();
     locked.store.email = async id => id === "locked" ? ownerEmail : id + "@example.com";
-    assert.equal((await runPickReminders(locked.options)).sent, 0);
-    assert.equal(locked.ledger.size, 0);
+    assert.equal((await runPickReminders(locked.options)).sent, 2);
+    assert.equal(locked.ledger.has("locked"), false);
 });
-test("stored retry payloads cannot send to other recipients or use cc/bcc", async () => {
+test("stored retry payloads cannot send to multiple recipients or use cc/bcc", async () => {
     for (const addresses of [
-        { to: ["someone@example.com"] },
         { to: [ownerEmail, "someone@example.com"] },
         { to: [ownerEmail], cc: ["someone@example.com"] },
         { to: [ownerEmail], bcc: ["someone@example.com"] }
