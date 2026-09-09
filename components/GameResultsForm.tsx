@@ -82,13 +82,14 @@ export default function GameResultsForm({
                         {parlay.picks.map(pick => {
                             const profile = profiles.find(item => item.id === pick.user_id);
                             return (
-                                <label key={pick.id} className="block rounded-lg border border-slate-700 bg-slate-950/40 p-3">
+                                <div key={pick.id} className="block rounded-lg border border-slate-700 bg-slate-950/40 p-3">
                                     <span className="flex items-start justify-between gap-4">
                                         <span>
                                             <span className="block text-sm font-semibold text-slate-200">{profile?.display_name ?? "Player"}</span>
-                                            <span className="mt-0.5 block text-sm text-slate-400">{pick.selection} ({pick.odds > 0 ? "+" : ""}{pick.odds})</span>
+                                            <span className="mt-0.5 block text-sm text-slate-400">{pick.selection}</span>
                                         </span>
                                         <select
+                                            aria-label={`Result for ${profile?.display_name ?? "Player"}: ${pick.selection}`}
                                             name={`result-${pick.id}`}
                                             defaultValue={pick.result ?? ""}
                                             required
@@ -100,7 +101,24 @@ export default function GameResultsForm({
                                             <option value="push">Push</option>
                                         </select>
                                     </span>
-                                </label>
+                                    <label className="mt-3 block text-sm font-semibold text-slate-200">
+                                        Leg odds
+                                        <input
+                                            name={`odds-${pick.id}`}
+                                            type="text"
+                                            inputMode="text"
+                                            defaultValue={`${pick.odds > 0 ? "+" : ""}${pick.odds}`}
+                                            required
+                                            disabled={isSaving}
+                                            maxLength={11}
+                                            pattern="[+-]?[0-9]+"
+                                            title="Enter American odds of -100 or lower, or +100 or higher"
+                                            placeholder="+150 or -110"
+                                            autoComplete="off"
+                                            className="mt-1 block w-full rounded-md border border-slate-600 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                                        />
+                                    </label>
+                                </div>
                             );
                         })}
                     </div>

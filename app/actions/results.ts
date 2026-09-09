@@ -57,18 +57,25 @@ export async function saveGameResults(formData: FormData) {
 
     const results = picks.map(pick => ({
         id: pick.id,
-        result: formData.get(`result-${pick.id}`)?.toString()
+        result: formData.get(`result-${pick.id}`)?.toString(),
+        oddsString: formData.get(`odds-${pick.id}`)?.toString().trim() ?? "",
+        odds: Number(formData.get(`odds-${pick.id}`)?.toString().trim() ?? "")
     }));
 
     if (results.some(item => !item.result || !["win", "loss", "push"].includes(item.result))) {
         return { error: "Select a result for every pick." } satisfies SaveGameResultsResult;
     }
 
+    if (results.some(item => !/^[+-]?\d+$/.test(item.oddsString) || !Number.isSafeInteger(item.odds)
+        || item.odds < -2147483648 || item.odds > 2147483647 || !isValidAmericanOdds(item.odds))) {
+        return { error: "Enter valid American odds for every pick: a whole number of -100 or lower, or +100 or higher, within the supported range." } satisfies SaveGameResultsResult;
+    }
+
     const pickUpdates = await Promise.all(results.map(item =>
-        admin.from("picks").update({ result: item.result }).eq("id", item.id)
+        admin.from("picks").update({ result: item.result, odds: item.odds }).eq("id", item.id)
     ));
     const pickUpdateError = pickUpdates.find(update => update.error)?.error;
-    if (pickUpdateError) return { error: "Unable to save every pick result." } satisfies SaveGameResultsResult;
+    if (pickUpdateError) return { error: "Unable to save every pick result and odds." } satisfies SaveGameResultsResult;
 
     const { error: oddsError } = await admin
         .from("parlays")
@@ -78,5 +85,6 @@ export async function saveGameResults(formData: FormData) {
     if (oddsError) return { error: "Pick results were saved, but total odds could not be updated." } satisfies SaveGameResultsResult;
 
     revalidatePath("/dashboard");
+    revalidatePath("/stats");
     return { success: true } satisfies SaveGameResultsResult;
 }
