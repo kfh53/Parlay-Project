@@ -3,13 +3,20 @@
 import { useState } from "react";
 import type { EntityKind, EntityRecord, EntityWinRates } from "@/lib/entity-win-rates";
 
+type SortOrder = "winRate" | "wins" | "alphabetical";
+
 export default function EntityWinRateChart({ data, users }: { data: EntityWinRates; users: { id: string; name: string }[] }) {
     const [kind, setKind] = useState<EntityKind>("player");
     const [scope, setScope] = useState("group");
     const [selected, setSelected] = useState("");
+    const [sortOrder, setSortOrder] = useState<SortOrder>("winRate");
     const records = [...(data[kind][scope] ?? [])]
         .filter(record => record.wins + record.losses > 0)
-        .sort((a, b) => rate(b) - rate(a) || (b.wins + b.losses) - (a.wins + a.losses) || a.name.localeCompare(b.name));
+        .sort((a, b) => {
+            if (sortOrder === "alphabetical") return a.name.localeCompare(b.name);
+            if (sortOrder === "wins") return b.wins - a.wins || rate(b) - rate(a) || a.name.localeCompare(b.name);
+            return rate(b) - rate(a) || (b.wins + b.losses) - (a.wins + a.losses) || a.name.localeCompare(b.name);
+        });
     const selectedRecord = records.find(record => record.name.toLocaleLowerCase() === selected) ?? null;
 
     return <section className="rounded-xl border border-slate-700 bg-slate-900 p-5 shadow-sm">
@@ -30,7 +37,14 @@ export default function EntityWinRateChart({ data, users }: { data: EntityWinRat
             <label className="flex min-w-48 flex-col gap-1 text-sm text-slate-300">Highlight
                 <select value={selectedRecord ? selected : ""} onChange={event => setSelected(event.target.value)} className="rounded-md border border-slate-600 bg-slate-800 px-3 py-2 text-slate-100">
                     <option value="">All {kind === "player" ? "players" : "teams"}</option>
-                    {records.map(record => <option key={record.name.toLocaleLowerCase()} value={record.name.toLocaleLowerCase()}>{record.name}</option>)}
+                    {[...records].sort((a, b) => a.name.localeCompare(b.name)).map(record => <option key={record.name.toLocaleLowerCase()} value={record.name.toLocaleLowerCase()}>{record.name}</option>)}
+                </select>
+            </label>
+            <label className="flex flex-col gap-1 text-sm text-slate-300">Sort by
+                <select value={sortOrder} onChange={event => setSortOrder(event.target.value as SortOrder)} className="rounded-md border border-slate-600 bg-slate-800 px-3 py-2 text-slate-100">
+                    <option value="winRate">Win percentage</option>
+                    <option value="wins">Total wins</option>
+                    <option value="alphabetical">Alphabetically</option>
                 </select>
             </label>
         </div>
