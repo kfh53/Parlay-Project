@@ -146,7 +146,7 @@ export async function ensurePrimeTimeGames() {
             .update({
                 title: abbreviateMatchup(game.title),
                 notes: `${game.window} * WEEK ${game.week}`,
-                primetime_type: getPrimetimeType(game.gameDate, "regular")
+                primetime_type: game.window === "INT" ? "special" : getPrimetimeType(game.gameDate, "regular")
             })
             .eq("id", legacy.id);
 
@@ -183,7 +183,7 @@ export async function ensurePrimeTimeGames() {
             season: 2026,
             week: game.week,
             stage: "regular",
-            primetime_type: getPrimetimeType(game.gameDate, "regular")
+            primetime_type: game.window === "INT" ? "special" : getPrimetimeType(game.gameDate, "regular")
         }));
 
     if (!missingGames.length) return;

@@ -2,7 +2,7 @@ export type PrimeTimeGame = {
     title: string;
     gameDate: string;
     week: number;
-    window: "TNF" | "SNF" | "MNF";
+    window: "TNF" | "SNF" | "MNF" | "INT";
     time: string;
 };
 
@@ -47,8 +47,8 @@ export function abbreviateMatchup(title: string) {
     return `${TEAM_ABBREVIATIONS[away] ?? away} vs ${TEAM_ABBREVIATIONS[home] ?? home}`;
 }
 
-// Announced 2026 national prime-time package games. Late-season flexible
-// slots without an announced matchup are intentionally omitted.
+// Announced 2026 national prime-time package and international morning games.
+// Late-season flexible slots without an announced matchup are intentionally omitted.
 export const PRIME_TIME_GAMES_2026: PrimeTimeGame[] = [
     { title: "Patriots at Seahawks", gameDate: "2026-09-09", week: 1, window: "SNF", time: "8:20 PM ET" },
     { title: "49ers at Rams", gameDate: "2026-09-10", week: 1, window: "TNF", time: "8:35 PM ET" },
@@ -60,24 +60,30 @@ export const PRIME_TIME_GAMES_2026: PrimeTimeGame[] = [
     { title: "Falcons at Packers", gameDate: "2026-09-24", week: 3, window: "TNF", time: "8:15 PM ET" },
     { title: "Rams at Broncos", gameDate: "2026-09-27", week: 3, window: "SNF", time: "8:20 PM ET" },
     { title: "Eagles at Bears", gameDate: "2026-09-28", week: 3, window: "MNF", time: "8:15 PM ET" },
+    { title: "Colts at Commanders", gameDate: "2026-10-04", week: 4, window: "INT", time: "9:30 AM ET" },
     { title: "Steelers at Browns", gameDate: "2026-10-01", week: 4, window: "TNF", time: "8:15 PM ET" },
     { title: "Lions at Panthers", gameDate: "2026-10-04", week: 4, window: "SNF", time: "8:20 PM ET" },
     { title: "Falcons at Saints", gameDate: "2026-10-05", week: 4, window: "MNF", time: "8:15 PM ET" },
+    { title: "Eagles at Jaguars", gameDate: "2026-10-11", week: 5, window: "INT", time: "9:30 AM ET" },
     { title: "Buccaneers at Cowboys", gameDate: "2026-10-08", week: 5, window: "TNF", time: "8:15 PM ET" },
     { title: "Ravens at Falcons", gameDate: "2026-10-11", week: 5, window: "SNF", time: "8:20 PM ET" },
     { title: "Bills at Rams", gameDate: "2026-10-12", week: 5, window: "MNF", time: "8:15 PM ET" },
+    { title: "Texans at Jaguars", gameDate: "2026-10-18", week: 6, window: "INT", time: "9:30 AM ET" },
     { title: "Seahawks at Broncos", gameDate: "2026-10-15", week: 6, window: "TNF", time: "8:15 PM ET" },
     { title: "Cowboys at Packers", gameDate: "2026-10-18", week: 6, window: "SNF", time: "8:20 PM ET" },
     { title: "Commanders at 49ers", gameDate: "2026-10-19", week: 6, window: "MNF", time: "8:15 PM ET" },
+    { title: "Steelers at Saints", gameDate: "2026-10-25", week: 7, window: "INT", time: "9:30 AM ET" },
     { title: "Patriots at Bears", gameDate: "2026-10-22", week: 7, window: "TNF", time: "8:15 PM ET" },
     { title: "Chiefs at Seahawks", gameDate: "2026-10-25", week: 7, window: "SNF", time: "8:20 PM ET" },
     { title: "Cowboys at Eagles", gameDate: "2026-10-26", week: 7, window: "MNF", time: "8:15 PM ET" },
+    { title: "Bengals at Falcons", gameDate: "2026-11-08", week: 9, window: "INT", time: "9:30 AM ET" },
     { title: "Panthers at Packers", gameDate: "2026-10-29", week: 8, window: "TNF", time: "8:15 PM ET" },
     { title: "Eagles at Commanders", gameDate: "2026-11-01", week: 8, window: "SNF", time: "8:20 PM ET" },
     { title: "Bears at Seahawks", gameDate: "2026-11-02", week: 8, window: "MNF", time: "8:15 PM ET" },
     { title: "Jaguars at Ravens", gameDate: "2026-11-05", week: 9, window: "TNF", time: "8:15 PM ET" },
     { title: "Buccaneers at Bears", gameDate: "2026-11-08", week: 9, window: "SNF", time: "8:20 PM ET" },
     { title: "Bills at Vikings", gameDate: "2026-11-09", week: 9, window: "MNF", time: "8:15 PM ET" },
+    { title: "Patriots at Lions", gameDate: "2026-11-15", week: 10, window: "INT", time: "9:30 AM ET" },
     { title: "Commanders at Giants", gameDate: "2026-11-12", week: 10, window: "TNF", time: "8:15 PM ET" },
     { title: "Steelers at Bengals", gameDate: "2026-11-15", week: 10, window: "SNF", time: "8:20 PM ET" },
     { title: "Chargers at Ravens", gameDate: "2026-11-16", week: 10, window: "MNF", time: "8:15 PM ET" },

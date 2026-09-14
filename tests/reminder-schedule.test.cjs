@@ -49,6 +49,14 @@ test("missing times and closed games are skipped; missing or unlocked picks qual
 test("all bundled schedule times convert and round-trip to the game date", () => {
     const { PRIME_TIME_GAMES_2026 } = loadTs("lib/prime-time-schedule.ts");
     for (const row of PRIME_TIME_GAMES_2026) assert.equal(easternDateTime(scheduledKickoffToIso(row.gameDate, row.time)).date, row.gameDate);
+    assert.deepEqual(PRIME_TIME_GAMES_2026.filter(row => row.window === "INT").map(row => [row.gameDate, row.title, row.time]), [
+        ["2026-10-04", "Colts at Commanders", "9:30 AM ET"],
+        ["2026-10-11", "Eagles at Jaguars", "9:30 AM ET"],
+        ["2026-10-18", "Texans at Jaguars", "9:30 AM ET"],
+        ["2026-10-25", "Steelers at Saints", "9:30 AM ET"],
+        ["2026-11-08", "Bengals at Falcons", "9:30 AM ET"],
+        ["2026-11-15", "Patriots at Lions", "9:30 AM ET"]
+    ]);
     assert.equal(scheduledKickoffToIso("2026-09-07", "12:00 AM ET"), iso("2026-09-07", "00:00"));
     assert.equal(scheduledKickoffToIso("2026-09-07", "12:00 PM ET"), iso("2026-09-07", "12:00"));
 });
