@@ -3,6 +3,8 @@
 import { useState } from "react";
 import WinRateChart, { WinRateSeries } from "./WinRateChart";
 import type { calculateParlayProfit } from "@/lib/profit";
+import type { EntityWinRates } from "@/lib/entity-win-rates";
+import EntityWinRateChart from "./EntityWinRateChart";
 
 export type StatsDataset = {
     value: string;
@@ -34,6 +36,7 @@ export type StatsDataset = {
     }>;
     chartSeries: WinRateSeries[];
     dates: string[];
+    entityWinRates: EntityWinRates;
 };
 
 export default function StatsDashboard({ datasets }: { datasets: StatsDataset[] }) {
@@ -123,6 +126,7 @@ export default function StatsDashboard({ datasets }: { datasets: StatsDataset[] 
             <div className="mb-5"><h2 className="text-lg font-bold text-slate-100">Win percentage over time</h2></div>
             <WinRateChart series={stats.chartSeries} dates={stats.dates} />
         </section>
+        <EntityWinRateChart data={stats.entityWinRates} users={stats.playerStats.map(player => ({ id: player.id, name: player.name }))} />
     </main>;
 }
 
