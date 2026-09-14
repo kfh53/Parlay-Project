@@ -160,11 +160,8 @@ export default async function StatsPage() {
                 if (pick.parlay_killer) current.parlayKillers++;
 
                 const result = pick.result === "win" ? "W" : pick.result === "loss" ? "L" : null;
-                if (result === null) {
-                    current.currentResult = null;
-                    current.currentStreak = 0;
-                    current.recentForm = "—";
-                } else {
+                // Pushes and missing results do not break a decided-pick streak.
+                if (result !== null) {
                     if (result === current.currentResult) current.currentStreak++;
                     else {
                         current.currentResult = result;

@@ -77,6 +77,26 @@ test("guest stats render completed results and profit without a login", async ()
     assert.match(html, /\+6.00 units/);
     assert.match(html, /Player One/);
 });
+test("recent form follows game date and ignores later pushes", async () => {
+    const results = [
+        { ...game, id: "newer-push", game_date: "2026-09-12", status: "complete", picks: [{ ...game.picks[0], result: "push" }] },
+        { ...game, id: "newer-loss", game_date: "2026-09-11", status: "complete", picks: [{ ...game.picks[0], result: "loss" }] },
+        { ...game, id: "old-win", game_date: "2025-12-01", status: "complete", picks: [{ ...game.picks[0], result: "win" }] }
+    ];
+    const db = { from: table => ({
+        select() { return this; }, eq() { return this; }, order() { return this; },
+        then(resolve) { return Promise.resolve({ data: table === "parlays" ? results : profiles, error: null }).then(resolve); }
+    }) };
+    const Page = loadTs("app/stats/page.tsx", {
+        "@/lib/supabase-server": { getSupabaseServerClient: async () => db },
+        "@/components/StatsDashboard": { default: () => null }
+    }).default;
+    const element = await Page();
+    const allTime = element.props.datasets.find(dataset => dataset.value === "all");
+    assert.equal(allTime.groupStats.recentForm, "L1");
+    assert.equal(allTime.playerStats[0].recentForm, "L1");
+    assert.equal(element.props.datasets.find(dataset => dataset.value === "2025").groupStats.recentForm, "W1");
+});
 test("direct mutation actions reject guests before accessing writable data", async () => {
     const db = { auth: { getUser: async () => ({ data: { user: null }, error: null }) }, from: blocked };
     const mocks = {
