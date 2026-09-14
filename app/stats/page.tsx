@@ -219,7 +219,6 @@ export default async function StatsPage() {
         const groupTotals = games.reduce((group, parlay) => {
             if (parlay.outcome === "win") group.wins++;
             if (parlay.outcome === "loss") group.losses++;
-            if (parlay.outcome === "push") group.pushes++;
             if (parlay.picks.some(pick => pick.parlay_killer)) group.parlayKillerParlays++;
 
             const impliedProbability = parlay.total_odds === null
@@ -236,7 +235,7 @@ export default async function StatsPage() {
             }
             return group;
         }, {
-            wins: 0, losses: 0, pushes: 0, parlayKillerParlays: 0,
+            wins: 0, losses: 0, parlayKillerParlays: 0,
             winningProbabilityTotal: 0, validWinningOddsCount: 0,
             impliedProbabilityTotal: 0, validDecisionOddsCount: 0, winsWithValidOdds: 0
         });
@@ -251,7 +250,6 @@ export default async function StatsPage() {
             parlays: games.length,
             wins: groupTotals.wins,
             losses: groupTotals.losses,
-            pushes: groupTotals.pushes,
             parlayKillerParlays: groupTotals.parlayKillerParlays,
             winRate: formatWinRate(groupTotals.wins, groupTotals.wins + groupTotals.losses),
             ...groupStreaks,

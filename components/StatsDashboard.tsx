@@ -20,7 +20,6 @@ export type StatsDataset = {
         parlays: number;
         wins: number;
         losses: number;
-        pushes: number;
         parlayKillerParlays: number;
         winRate: string;
         recentForm: string;
@@ -76,11 +75,10 @@ export default function StatsDashboard({ datasets }: { datasets: StatsDataset[] 
                 <h2 className="text-lg font-bold text-slate-100">Group parlay performance</h2>
             </div>
             <div className="divide-y divide-slate-700">
-                <MetricGroup label="Results" columns="five">
+                <MetricGroup label="Results">
                     <GroupMetric label="Completed parlays" value={stats.groupStats.parlays} />
                     <GroupMetric label="Parlay wins" value={stats.groupStats.wins} tone="emerald" />
                     <GroupMetric label="Parlay losses" value={stats.groupStats.losses} tone="red" />
-                    <GroupMetric label="Parlay pushes" value={stats.groupStats.pushes} tone="amber" />
                     <GroupMetric label="Parlay win rate" value={stats.groupStats.winRate} tone="blue" />
                 </MetricGroup>
                 <MetricGroup label="Momentum">
@@ -160,14 +158,12 @@ function GroupMetric({ label, value, tone = "slate" }: {
     </div>;
 }
 
-function MetricGroup({ label, columns = "four", children }: {
+function MetricGroup({ label, children }: {
     label: string;
-    columns?: "four" | "five";
     children: React.ReactNode;
 }) {
-    const desktopColumns = columns === "five" ? "lg:grid-cols-5" : "lg:grid-cols-4";
     return <div>
         <h3 className="bg-slate-950/40 px-5 py-2 text-xs font-semibold uppercase tracking-widest text-slate-500">{label}</h3>
-        <div className={`grid gap-px bg-slate-700 sm:grid-cols-2 ${desktopColumns}`}>{children}</div>
+        <div className="grid gap-px bg-slate-700 sm:grid-cols-2 lg:grid-cols-4">{children}</div>
     </div>;
 }
