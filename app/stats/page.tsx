@@ -4,6 +4,7 @@ import StatsDashboard, { StatsDataset } from "@/components/StatsDashboard";
 import { americanOddsToProbability, formatAverageAmericanOdds } from "@/lib/odds";
 import { calculateParlayProfit } from "@/lib/profit";
 import { buildEntityWinRates } from "@/lib/entity-win-rates";
+import { buildBetTypeWinRates } from "@/lib/bet-type-win-rates";
 
 type ParlayOutcome = "win" | "loss" | "push";
 
@@ -64,7 +65,8 @@ export default async function StatsPage() {
                         result,
                         parlay_killer,
                         player_name,
-                        team_name
+                        team_name,
+                        bet_type
                     )
             `)
             .eq("status", "complete")
@@ -275,7 +277,8 @@ export default async function StatsPage() {
             value, label, completedParlays: games.length, wins: periodWins, losses: periodLosses,
             winRate: formatWinRate(periodWins, periodWins + periodLosses), groupStats, playerStats: records,
             chartSeries: buildWinRateDataset(games), dates: games.map(parlay => parlay.game_date),
-            entityWinRates: buildEntityWinRates(games.flatMap(parlay => parlay.picks))
+            entityWinRates: buildEntityWinRates(games.flatMap(parlay => parlay.picks)),
+            betTypeWinRates: buildBetTypeWinRates(games.flatMap(parlay => parlay.picks))
         };
     }
 

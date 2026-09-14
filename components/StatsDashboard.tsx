@@ -5,6 +5,8 @@ import WinRateChart, { WinRateSeries } from "./WinRateChart";
 import type { calculateParlayProfit } from "@/lib/profit";
 import type { EntityWinRates } from "@/lib/entity-win-rates";
 import EntityWinRateChart from "./EntityWinRateChart";
+import BetTypeWinRateChart from "./BetTypeWinRateChart";
+import type { BetTypeWinRates } from "@/lib/bet-type-win-rates";
 
 export type StatsDataset = {
     value: string;
@@ -37,6 +39,7 @@ export type StatsDataset = {
     chartSeries: WinRateSeries[];
     dates: string[];
     entityWinRates: EntityWinRates;
+    betTypeWinRates: BetTypeWinRates;
 };
 
 export default function StatsDashboard({ datasets }: { datasets: StatsDataset[] }) {
@@ -127,6 +130,7 @@ export default function StatsDashboard({ datasets }: { datasets: StatsDataset[] 
             <WinRateChart series={stats.chartSeries} dates={stats.dates} />
         </section>
         <EntityWinRateChart data={stats.entityWinRates} users={stats.playerStats.map(player => ({ id: player.id, name: player.name }))} />
+        <BetTypeWinRateChart data={stats.betTypeWinRates} users={stats.playerStats.map(player => ({ id: player.id, name: player.name }))} />
     </main>;
 }
 
