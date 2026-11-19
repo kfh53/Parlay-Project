@@ -15,6 +15,7 @@ export const BET_TYPE_OPTIONS = [
     ["longest_reception", "Longest reception"],
     ["tackles", "Tackles"],
     ["tackles_assists", "Tackles + assists"],
+    ["sacks", "Sacks"],
     ["field_goals", "Field goals"],
     ["extra_points", "Extra points"],
     ["kicking_points", "Kicking points"],
